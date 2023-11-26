@@ -69,5 +69,3 @@ There's little need for manual intervention as everything is automated. Using co
 - Anything that the program does automatically is safe and verified, but it's always better to be safe than sorry and not trust some random free program. The correct URL should always be shown right above the browser but to be safe and verify that it is correct you can always, right-click on a page and select 'inspect' to view the website's URL.
 - The program does not directly save or send any user data. Microsoft manages any data storage or transmission.
 
-## Support
-https://discord.gg/y2xdYaYtbJ
