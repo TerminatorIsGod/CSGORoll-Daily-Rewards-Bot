@@ -5,15 +5,14 @@ Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Collecto
 
 # Table of Contents
 
-1. [CSGORoll Daily Collector](#csgoroll-daily-collector)
-2. [What is this amazing free program?](#what-is-this-amazing-free-program)
-3. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
-4. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
-5. [How to Use](#how-to-use)
-6. [Common Issues](#common-issues)
-7. [How It Works](#how-it-works)
-8. [Commands/Console](#commandsconsole)
-9. [Safety/Other](#safetyother)
+1. [What is this amazing free program?](#what-is-this-amazing-free-program)
+2. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
+3. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
+4. [How to Use](#how-to-use)
+5. [Common Issues](#common-issues)
+6. [How It Works](#how-it-works)
+7. [Commands/Console](#commandsconsole)
+8. [Safety/Other](#safetyother)
 
 ## What is this amazing free program?
 
