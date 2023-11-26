@@ -3,6 +3,18 @@
 Developed By: TerminatorIsGod  
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Collector](https://github.com/TerminatorIsGod/CSGORoll-Daily-Collector)
 
+# Table of Contents
+
+1. [CSGORoll Daily Collector](#csgoroll-daily-collector)
+2. [What is this amazing free program?](#what-is-this-amazing-free-program)
+3. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
+4. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
+5. [How to Use](#how-to-use)
+6. [Common Issues](#common-issues)
+7. [How It Works](#how-it-works)
+8. [Commands/Console](#commandsconsole)
+9. [Safety/Other](#safetyother)
+
 ## What is this amazing free program?
 
 This program automates the collection and sells your free daily cases on CSGORoll. It does this by using Microsoft's WebView2 library to simulate a web browser. We then run some simple javascript to do stuff such as verify you are signed in, check how much longer is left to claim the cases, and to open the cases themselves. One useful feature to enhance its automation capabilities is having it so if you get signed out of CSGORoll, it will sign you back in as long as you are still signed into Steam. At no point do the developers have access to anything, it works as if you are using your regular web browser.
