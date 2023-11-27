@@ -1,7 +1,7 @@
-# CSGORoll Daily Collector
+# CSGORoll Daily Rewards Bot / Collector
 
 Developed By: TerminatorIsGod  
-Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Collector](https://github.com/TerminatorIsGod/CSGORoll-Daily-Collector)
+Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)
 
 # Table of Contents
 
