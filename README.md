@@ -5,7 +5,7 @@ Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-
 
 # Table of Contents
 
-1. [What is this amazing free program?](#what-is-this-amazing-free-program)
+1. [What is this program?](#what-is-this-program)
 2. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
 3. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
 4. [How to Use](#how-to-use)
@@ -14,13 +14,9 @@ Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-
 7. [Commands/Console](#commandsconsole)
 8. [Safety/Other](#safetyother)
 
-## What is this amazing free program?
+## What is this program?
 
 This program automates the collection and sells your free daily cases on CSGORoll. It does this by using Microsoft's WebView2 library to simulate a web browser. We then run some simple javascript to do stuff such as verify you are signed in, check how much longer is left to claim the cases, and to open the cases themselves. One useful feature to enhance its automation capabilities is having it so if you get signed out of CSGORoll, it will sign you back in as long as you are still signed into Steam. At no point do the developers have access to anything, it works as if you are using your regular web browser.
-
-## What's the catch/Why is it free?
-
-The 'catch' lies in the automatic setting of your affiliate code. This strategic decision not only enables us to provide the program for free but also comes at no cost to you. By setting your affiliate code, you contribute to supporting the developer to continue making programs just like this one.
 
 ## Does CSGORoll allow this?
 
@@ -61,6 +57,10 @@ There's little need for manual intervention as everything is automated. Using co
 
 - `goTo <url>`: Navigates to the specified URL.
 - `autoQuit [bool]`: Toggles automatic program closure.
+
+## What's the catch/Why is it free?
+
+The 'catch' lies in the automatic setting of your affiliate code. This strategic decision not only enables us to provide the program for free but also comes at no cost to you. By setting your affiliate code, you contribute to supporting the developer to continue making programs just like this one.
 
 ## Safety/Other
 
