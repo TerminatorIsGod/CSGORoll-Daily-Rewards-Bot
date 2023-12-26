@@ -3,6 +3,8 @@
 Developed By: TerminatorIsGod  
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)
 
+# Temporarily there is a bug and it won't close automatically because of the christmas event
+
 # Table of Contents
 
 1. [What is this program?](#what-is-this-program)
