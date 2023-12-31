@@ -3,8 +3,6 @@
 Developed By: TerminatorIsGod  
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)
 
-# Temporarily there is a bug and it won't close automatically because of the christmas event
-
 # Table of Contents
 
 1. [What is this program?](#what-is-this-program)
@@ -34,6 +32,9 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 **Note:** Ensure your computer is not turned off during the daily case collection time. Sleep mode is acceptable. If your computer is turned off, the program won't run, preventing the collection of your free daily cases.
 
 ## Common Issues
+
+### The program isn't closing itself
+Sometimes when CSGORoll has special events it will break the program and it won't close automatically.
 
 ### My daily cases are no longer being collected!
 If you have moved the exe file then you need to rerun the program.
