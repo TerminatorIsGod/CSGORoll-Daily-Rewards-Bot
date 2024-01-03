@@ -30,7 +30,7 @@ namespace WebBrowser
 
         bool quittingApplication = false;
 
-        int loadPageDelayMiliSec = 3000;
+        int loadPageDelayMiliSec = 6000;
 
         string filePathFolder = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CSGORollDailyCollector");
 
@@ -112,7 +112,7 @@ namespace WebBrowser
             try
             {
                 await DelayAsyncSec(1);
-                string script = "function getTime(){\r\nconst elements = document.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\nfor (const element of elements) {\r\n  // Check if innerText is empty or contains no numbers\r\n  if (element.innerText.trim() === '' || !/\\d/.test(element.innerText)) {\r\n    // Perform further actions if needed\r\n  } else {\r\n    console.log(element.innerText);\r\n    return element.innerText;\r\n    // Break out of the loop when the 'else' condition is met\r\n    break;\r\n  }\r\n}\r\n}\r\n\r\ngetTime();"; //document.querySelector('cw-countdown span:not(.text-warning)').innerText
+                string script = "function getTime(){\r\nconst elements = document.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\nfor (const element of elements) {\r\n\r\n  if (element.innerText.trim() === '' || !/\\d/.test(element.innerText)) {\r\n\r\n  } else {\r\n    console.log(element.innerText);\r\n    return element.innerText;\r\n\r\n    break;\r\n  }\r\n}\r\n}\r\n\r\ngetTime();";
                 string timeLeft = await webView21.ExecuteScriptAsync(script);
                 printToConsole(timeLeft);
                 return ParseDurationString(timeLeft);
