@@ -3,6 +3,7 @@ using Microsoft.Win32.TaskScheduler;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -15,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+
 
 namespace WebBrowser
 {
@@ -45,6 +47,8 @@ namespace WebBrowser
             _instance = this;
 
             this.FormClosing += Form1_FormClosing;
+
+            taskName = ConfigurationManager.AppSettings["taskName"];
 
             //Register Commands
             insertWebBrowserCommand("autoQuit", new cancelQuitCommand());
