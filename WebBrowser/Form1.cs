@@ -39,6 +39,9 @@ namespace WebBrowser
         bool waitingForTime = false;
         string timeLeftStr = "";
 
+        private Timer timer;
+        private int secondsElapsed;
+
         bool waitingForJavaScriptToComplete = false;
 
         string filePathFolder = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CSGORollDailyCollector");
@@ -84,6 +87,12 @@ namespace WebBrowser
         {
             await webView21.EnsureCoreWebView2Async(null);
             webView21.CoreWebView2.WebMessageReceived += messagedReceived;
+
+            timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += Timer_Tick;
+
+            timer.Start();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -102,6 +111,9 @@ namespace WebBrowser
                 if (result == DialogResult.No)
                 {
                     e.Cancel = true;
+                } else
+                {
+                    timer.Stop();
                 }
             }
         }
@@ -129,18 +141,36 @@ namespace WebBrowser
             richTextBox2.Text = "URL: " + url;
         }
 
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            secondsElapsed++;
+        }
+
         private async Task<TimeSpan> getTimeLeft()
         {
             try
             {
                 waitingForTime = true;
-                string script = "async function mainLoop(){\r\n\r\n    var hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    while(!hasPageFullyLoadedCheck){\r\n        console.log(\"Page hasn't loaded yet...\");\r\n        await delay(100);\r\n        hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    }\r\n\r\n    return await getTime();\r\n}\r\n\r\nasync function delay(time) {\r\n    return new Promise(resolve => setTimeout(resolve, time));\r\n}\r\n\r\nfunction parseTime(timeString) {\r\n    const regex = /(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?/;\r\n    const match = timeString.match(regex);\r\n\r\n    if (!match) return 0; // Return 0 if the time string format is invalid\r\n\r\n    const hours = parseInt(match[1]) || 0;\r\n    const minutes = parseInt(match[2]) || 0;\r\n    const seconds = parseInt(match[3]) || 0;\r\n\r\n    return hours * 3600 + minutes * 60 + seconds;\r\n}\r\n\r\nfunction formatTime(seconds) {\r\n    const hours = Math.floor(seconds / 3600);\r\n    const minutes = Math.floor((seconds % 3600) / 60);\r\n    const remainingSeconds = seconds % 60;\r\n\r\n    return `${hours}H${minutes}M${remainingSeconds}S`;\r\n}\r\n\r\nasync function hasPageFullyLoaded(){\r\n    var loader = document.querySelector('cw-loader.absolute');\r\n    var footer = document.querySelector('cw-footer');\r\n\r\n    if (document.readyState === 'complete') {\r\n        if(footer){\r\n            if (!loader) {\r\n                return true;\r\n            } else {\r\n                var spinnerContainer = loader.querySelector('.spinner-container');\r\n                if (spinnerContainer) {\r\n                    return false;\r\n                } else {\r\n                    return true;\r\n                }\r\n            }\r\n        } else {\r\n            return false;\r\n        }\r\n        \r\n    } else {\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function getTime() {\r\n    var section = document.querySelector('section.grid.gaming');\r\n\r\n    const elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\n    const timesInSeconds = [];\r\n    \r\n    for (const element of elements) {\r\n        if (element.innerText.trim() !== '' && /\\d/.test(element.innerText)) {\r\n            const timeInSeconds = parseTime(element.innerText);\r\n            timesInSeconds.push(timeInSeconds);\r\n            console.log(element.innerText);\r\n            //return element.innerText;\r\n        }\r\n    }\r\n\r\n    if (timesInSeconds.length === 0) return null;\r\n\r\n    const smallestTimeInSeconds = Math.min(...timesInSeconds);\r\n    const smallestTimeFormatted = formatTime(smallestTimeInSeconds);\r\n    console.log(smallestTimeFormatted); // Log the smallest time to console\r\n    return smallestTimeFormatted;\r\n}\r\n\r\nasync function waitForMessage(){\r\n    var result = await mainLoop();\r\n    await delay(100);\r\n    chrome.webview.postMessage(\"TimeMessage: \" + result);\r\n}\r\n\r\nwaitForMessage();";
+                string script = "async function mainLoop(){\r\n\r\n    var hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    while(!hasPageFullyLoadedCheck){\r\n        console.log(\"Page hasn't loaded yet...\");\r\n        await delay(100);\r\n        hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    }\r\n\r\n    return await getTime();\r\n}\r\n\r\nasync function delay(time) {\r\n    return new Promise(resolve => setTimeout(resolve, time));\r\n}\r\n\r\nfunction parseTime(timeString) {\r\n    const regex = /(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?/;\r\n    const match = timeString.match(regex);\r\n\r\n    if (!match) return 0; // Return 0 if the time string format is invalid\r\n\r\n    const hours = parseInt(match[1]) || 0;\r\n    const minutes = parseInt(match[2]) || 0;\r\n    const seconds = parseInt(match[3]) || 0;\r\n\r\n    return hours * 3600 + minutes * 60 + seconds;\r\n}\r\n\r\nfunction formatTime(seconds) {\r\n    const hours = Math.floor(seconds / 3600);\r\n    const minutes = Math.floor((seconds % 3600) / 60);\r\n    const remainingSeconds = seconds % 60;\r\n\r\n    return `${hours}H${minutes}M${remainingSeconds}S`;\r\n}\r\n\r\nasync function hasPageFullyLoaded(){\r\n    var loader = document.querySelector('cw-loader.absolute');\r\n    var footer = document.querySelector('cw-footer');\r\n\r\n    if (document.readyState === 'complete') {\r\n        if(footer){\r\n            if (!loader) {\r\n                return true;\r\n            } else {\r\n                var spinnerContainer = loader.querySelector('.spinner-container');\r\n                if (spinnerContainer) {\r\n                    return false;\r\n                } else {\r\n                    return true;\r\n                }\r\n            }\r\n        } else {\r\n            return false;\r\n        }\r\n        \r\n    } else {\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function getTime() {\r\n    var section = document.querySelector('section.grid.gaming');\r\n\r\n    while(!section){\r\n        await delay(100);\r\n        section = document.querySelector('section.grid.gaming');\r\n    }\r\n\r\n    const elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\n    while(elements.length == 0){\r\n        await delay(100);\r\n        elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n    }\r\n\r\n    const timesInSeconds = [];\r\n    \r\n    for (const element of elements) {\r\n        if (element.innerText.trim() !== '' && /\\d/.test(element.innerText)) {\r\n            const timeInSeconds = parseTime(element.innerText);\r\n            timesInSeconds.push(timeInSeconds);\r\n            console.log(element.innerText);\r\n            //return element.innerText;\r\n        }\r\n    }\r\n\r\n    if (timesInSeconds.length === 0) return null;\r\n\r\n    const smallestTimeInSeconds = Math.min(...timesInSeconds);\r\n    const smallestTimeFormatted = formatTime(smallestTimeInSeconds);\r\n    console.log(smallestTimeFormatted); // Log the smallest time to console\r\n    return smallestTimeFormatted;\r\n}\r\n\r\nasync function waitForMessage(){\r\n    var result = await mainLoop();\r\n    await delay(100);\r\n    chrome.webview.postMessage(\"TimeMessage: \" + result);\r\n}\r\n\r\nwaitForMessage();";
                 var timeLeft = await webView21.ExecuteScriptAsync(script);
+
+                secondsElapsed = 0;
+
                 while (waitingForTime)
                 {
                     await DelayAsync(100);
+
+                    if(secondsElapsed >= 10)
+                    {
+                        timeLeft = await webView21.ExecuteScriptAsync(script);
+                        secondsElapsed = 0;
+                    }
                 }
                 printToConsole("Time left: " + timeLeftStr);
+                if(timeLeft == null || timeLeft.Equals("null"))
+                {
+                    return new TimeSpan(0, 0, 0);
+                }
                 return ParseDurationString(timeLeftStr);
             }
             catch (Exception ex)
@@ -274,18 +304,30 @@ namespace WebBrowser
             await webView21.ExecuteScriptAsync(script);
             //await setAffiliateCode();
             //printToConsole("Case check 2");
+            secondsElapsed = 0;
             while (waitingForJavaScriptToComplete)
             {
                 await DelayAsync(100);
+                if(secondsElapsed > 120)
+                {
+                    secondsElapsed = 0;
+                    await webView21.ExecuteScriptAsync(script);
+                }
             }
 
             //redundency check
             waitingForJavaScriptToComplete = true;
             await webView21.ExecuteScriptAsync(script);
 
+            secondsElapsed = 0;
             while (waitingForJavaScriptToComplete)
             {
                 await DelayAsync(100);
+                if (secondsElapsed > 120)
+                {
+                    secondsElapsed = 0;
+                    await webView21.ExecuteScriptAsync(script);
+                }
             }
 
             printToConsole("All cases are open");
@@ -322,18 +364,30 @@ namespace WebBrowser
 
                 waitingForJavaScriptToComplete = true;
                 await goToProfilePage();
+                secondsElapsed = 0;
                 while (waitingForJavaScriptToComplete)
                 {
                     await DelayAsync(100);
+                    if(secondsElapsed > 15)
+                    {
+                        secondsElapsed = 0;
+                        await goToProfilePage();
+                    }
                 }
 
                 await DelayAsync(500);
 
                 waitingForJavaScriptToComplete = true;
                 await setAffiliateCode();
+                secondsElapsed = 0;
                 while (waitingForJavaScriptToComplete)
                 {
                     await DelayAsync(100);
+                    if (secondsElapsed > 15)
+                    {
+                        secondsElapsed = 0;
+                        await setAffiliateCode();
+                    }
                 }
 
                 //Quit
