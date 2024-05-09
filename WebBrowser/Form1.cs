@@ -144,6 +144,15 @@ namespace WebBrowser
         private void Timer_Tick(object sender, EventArgs e)
         {
             secondsElapsed++;
+            if(secondsElapsed % 5 == 0)
+            {
+                printToConsole($"Seconds elapsed: {secondsElapsed}");
+            }
+            if(secondsElapsed >= 120)
+            {
+                webView21.Reload();
+                secondsElapsed = 0;
+            }
         }
 
         private async Task<TimeSpan> getTimeLeft()
@@ -298,10 +307,12 @@ namespace WebBrowser
 
         private async void openAllCases()
         {
+            printToConsole("openAllCases called");
             //printToConsole("Case check 1");
             waitingForJavaScriptToComplete = true;
             string script = "\r\nvar fakeSellButton = false;\r\n\r\nasync function mainLoop(){\r\n    //is page loaded?\r\n    \r\n    var hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    while(!hasPageFullyLoadedCheck){\r\n        console.log(\"Page hasn't loaded yet...\");\r\n        await delay(100);\r\n        hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    }\r\n    //\r\n    await areAllCasesOpen();\r\n\r\n    return true;\r\n}\r\n\r\nasync function delay(time) {\r\n    return new Promise(resolve => setTimeout(resolve, time));\r\n}\r\n\r\nasync function hasPageFullyLoaded(){\r\n    var loader = document.querySelector('cw-loader.absolute');\r\n    var footer = document.querySelector('cw-footer');\r\n\r\n    if (document.readyState === 'complete') {\r\n        if(footer){\r\n            if (!loader) {\r\n                return true;\r\n            } else {\r\n                var spinnerContainer = loader.querySelector('.spinner-container');\r\n                if (spinnerContainer) {\r\n                    return false;\r\n                } else {\r\n                    return areThereCasesVisibleOnPage();\r\n                }\r\n            }\r\n        } else {\r\n            return false;\r\n        }\r\n        \r\n    } else {\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function areThereCasesVisibleOnPage(){\r\n    var cases = document.querySelector('button[data-test=\"open-case\"]');\r\n\r\n    if(cases == null){\r\n        return false;\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nasync function isCasePanelShowing(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    if(modal){\r\n        return true;\r\n    }\r\n\r\n    return false;\r\n}\r\n\r\nasync function isCasePanelOpenButtonActive(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    if(modal){\r\n        var buttonInsideModal = modal.querySelector('.open-btn');\r\n        await delay(100);\r\n        if(buttonInsideModal && !buttonInsideModal.disabled){\r\n            return true;\r\n        }\r\n    }\r\n    return false;\r\n}\r\n\r\nasync function openCase(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    if(modal){\r\n        await delay(100);\r\n        var buttonInsideModal = modal.querySelector('.open-btn');\r\n        await delay(100);\r\n        if(buttonInsideModal){\r\n            buttonInsideModal.click();\r\n            return true;\r\n        }\r\n    }\r\n\r\n    return false;\r\n}\r\n\r\nasync function sellItem(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    if(modal){\r\n        var buttonInsideModal = modal.querySelector('.sell-btn');\r\n\r\n        if(buttonInsideModal){\r\n            await delay(100);\r\n            buttonInsideModal.click();\r\n            await delay(500);\r\n            buttonInsideModal.click();\r\n        }\r\n    }\r\n}\r\n\r\nasync function closeModal(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    if(modal){\r\n        var buttonInsideModal = modal.querySelector('.close');\r\n        await delay(100);\r\n        buttonInsideModal.click();\r\n    }\r\n}\r\n\r\nasync function openAllCases(buttons){\r\n    var enabledButtons = Array.from(buttons).filter(button => !button.disabled);\r\n\r\n    if(enabledButtons.length > 0){\r\n        for(const button of enabledButtons){\r\n            //press button\r\n            button.click();\r\n            //await for menu to show\r\n            var isCasePanelShowingWhileLoop = await isCasePanelShowing();\r\n            while(!isCasePanelShowingWhileLoop){\r\n                console.log(\"Case open panel not active, waiting...\");\r\n                await delay(100);\r\n                isCasePanelShowingWhileLoop = await isCasePanelShowing();\r\n            }\r\n\r\n            await delay(100);\r\n\r\n            var isPanelOpenButtonActiveWhileLoop = await isCasePanelOpenButtonActive();\r\n            while(!isPanelOpenButtonActiveWhileLoop){\r\n                console.log(\"Button not active, waiting...\");\r\n                await delay(100);\r\n                isPanelOpenButtonActiveWhileLoop = await isCasePanelOpenButtonActive();\r\n            }\r\n\r\n            await delay(100);\r\n\r\n            //Uncomment to open case\r\n            var didItOpenCase = false;\r\n            while(!didItOpenCase){\r\n                didItOpenCase = await openCase();\r\n            }\r\n\r\n            //await for sell button\r\n            var isSellButtonShowingWhileLoop = await isSellButtonShowing();\r\n            while(!isSellButtonShowingWhileLoop){\r\n                await delay(100);\r\n                console.log(\"Sell button not active, waiting...\");\r\n                isSellButtonShowingWhileLoop = await isSellButtonShowing();\r\n\r\n                if(fakeSellButton){\r\n                    fakeSellButton = false;\r\n                    break;\r\n                }\r\n            }\r\n\r\n            await delay(500);\r\n\r\n            //press twice\r\n            await sellItem();\r\n            console.log(\"Item sold\");\r\n\r\n            await delay(100);\r\n\r\n            //close\r\n            await closeModal();\r\n            console.log(\"Closing modal\");\r\n\r\n            //await for menu to be gone\r\n            var isCasePanelShowingWhileLoopForClosing = await isCasePanelShowing();\r\n            while(isCasePanelShowingWhileLoopForClosing){\r\n                console.log(\"Modal still open...\");\r\n                await closeModal();\r\n                await delay(100);\r\n                isCasePanelShowingWhileLoopForClosing = await isCasePanelShowing();\r\n            }\r\n\r\n            await delay(100);\r\n        }\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nasync function isSellButtonShowing(){\r\n    var modal = document.querySelector('cw-quick-unbox-modal');\r\n    var sellButton = modal.querySelector('.sell-btn');\r\n\r\n    if(sellButton && !sellButton.disabled){\r\n        console.log(\"No sell button showing...\");\r\n        return true;\r\n    }\r\n    return false;\r\n}\r\n\r\nasync function areAllCasesOpen(){\r\n    //check to see if there are any open btns if there aren't then return to application\r\n    var section = document.querySelector('section.grid.gaming');\r\n\r\n    if (section) {\r\n        // Find all buttons within the section\r\n        var buttons = section.querySelectorAll('.open-btn');\r\n        \r\n\r\n        var casesAreOpen = false;\r\n        while(!casesAreOpen){\r\n            casesAreOpen = await openAllCases(buttons);\r\n            await delay(100);\r\n        }\r\n\r\n        await delay(3000);\r\n\r\n        buttons = section.querySelectorAll('.open-btn');\r\n\r\n        casesAreOpen = false;\r\n        while(!casesAreOpen){\r\n            casesAreOpen = await openAllCases(buttons);\r\n            await delay(100);\r\n        }\r\n\r\n        //double check\r\n\r\n        return true;\r\n    \r\n        // Loop through the buttons and do something with them\r\n        \r\n\r\n    } else {\r\n        console.log('Section not found!');\r\n        //idk do something to fix\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function sendCompletionMessage(){\r\n    await mainLoop();\r\n    await delay(100);\r\n    chrome.webview.postMessage(\"JavaScript Completed\");\r\n}\r\n\r\nsendCompletionMessage();";
             await webView21.ExecuteScriptAsync(script);
+            printToConsole("openAllCases script executed");
             //await setAffiliateCode();
             //printToConsole("Case check 2");
             secondsElapsed = 0;
@@ -315,9 +326,15 @@ namespace WebBrowser
                 }
             }
 
+            printToConsole("openAllCases script completed 1");
+
+            await DelayAsync(3000);
+
             //redundency check
             waitingForJavaScriptToComplete = true;
             await webView21.ExecuteScriptAsync(script);
+
+            printToConsole("openAllCases script executed again");
 
             secondsElapsed = 0;
             while (waitingForJavaScriptToComplete)
@@ -329,6 +346,8 @@ namespace WebBrowser
                     await webView21.ExecuteScriptAsync(script);
                 }
             }
+
+            printToConsole("openAllCases script completed 2");
 
             printToConsole("All cases are open");
             TimeSpan ts = await getTimeLeft();
