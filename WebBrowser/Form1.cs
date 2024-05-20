@@ -344,6 +344,8 @@ namespace WebBrowser
 
             printToConsole("openAllCases script completed 1");
 
+            TimeSpan tsA1 = await getTimeLeft();
+
             await DelayAsync(3000);
 
             //redundency check
@@ -364,6 +366,8 @@ namespace WebBrowser
             }
 
             printToConsole("openAllCases script completed 2");
+
+            TimeSpan tsA2 = await getTimeLeft();
 
             await DelayAsync(3000);
 
@@ -388,7 +392,14 @@ namespace WebBrowser
 
             printToConsole("All cases are open");
             TimeSpan ts = await getTimeLeft();
-            thereIsATimer(ts);
+
+            if(tsA2 < ts)
+            {
+                thereIsATimer(tsA2);
+            } else
+            {
+                thereIsATimer(ts);
+            }
         }
 
         private void quitWebBrowser()
