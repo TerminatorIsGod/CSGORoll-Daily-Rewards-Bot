@@ -365,6 +365,27 @@ namespace WebBrowser
 
             printToConsole("openAllCases script completed 2");
 
+            await DelayAsync(3000);
+
+            //redundency check
+            waitingForJavaScriptToComplete = true;
+            await webView21.ExecuteScriptAsync(script);
+
+            printToConsole("openAllCases script executed again");
+
+            secondsElapsed = 0;
+            while (waitingForJavaScriptToComplete)
+            {
+                await DelayAsync(100);
+                if (secondsElapsed > 120)
+                {
+                    secondsElapsed = 0;
+                    await webView21.ExecuteScriptAsync(script);
+                }
+            }
+
+            printToConsole("openAllCases script completed 3");
+
             printToConsole("All cases are open");
             TimeSpan ts = await getTimeLeft();
             thereIsATimer(ts);
