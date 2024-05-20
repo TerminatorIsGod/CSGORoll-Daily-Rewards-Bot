@@ -65,6 +65,7 @@ namespace WebBrowser
             //Register Commands
             insertWebBrowserCommand("autoQuit", new cancelQuitCommand());
             insertWebBrowserCommand("goTo", new goToCommand());
+            insertWebBrowserCommand("clearLogsFile", new clearLogFileCommand());
 
             //Form1._instance.disableAutoQuit = true;
 
@@ -118,6 +119,20 @@ namespace WebBrowser
             }
         }
 
+        private void logConsoleText(string text)
+        {
+            DateTime currentTime = DateTime.Now;
+
+            if (!showInitalizationScreen)
+                File.AppendAllText(filePathFolder + "Initalized.Egario", $"[{currentTime}]: {text} \n");
+        }
+
+        public void clearConsoleTextFile()
+        {
+            if (!showInitalizationScreen)
+                File.WriteAllText(filePathFolder + "Initalized.Egario", "");
+        }
+
         void insertWebBrowserCommand(string command, WebBrowserCommand commandObject)
         {
             webBrowserCommands.Add(command.ToLower(), commandObject);
@@ -134,6 +149,7 @@ namespace WebBrowser
         {
             richTextBox1.AppendText("\r\n" + text);
             richTextBox1.ScrollToCaret();
+            logConsoleText(text);
         }
 
         public void setURLTextbox(String url)
@@ -160,7 +176,7 @@ namespace WebBrowser
             try
             {
                 waitingForTime = true;
-                string script = "async function mainLoop(){\r\n\r\n    var hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    while(!hasPageFullyLoadedCheck){\r\n        console.log(\"Page hasn't loaded yet...\");\r\n        await delay(100);\r\n        hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    }\r\n\r\n    await delay(100);\r\n\r\n    return await getTime();\r\n}\r\n\r\nasync function delay(time) {\r\n    return new Promise(resolve => setTimeout(resolve, time));\r\n}\r\n\r\nfunction parseTime(timeString) {\r\n    const regex = /(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?/;\r\n    const match = timeString.match(regex);\r\n\r\n    if (!match) return 0; // Return 0 if the time string format is invalid\r\n\r\n    const hours = parseInt(match[1]) || 0;\r\n    const minutes = parseInt(match[2]) || 0;\r\n    const seconds = parseInt(match[3]) || 0;\r\n\r\n    return hours * 3600 + minutes * 60 + seconds;\r\n}\r\n\r\nfunction formatTime(seconds) {\r\n    const hours = Math.floor(seconds / 3600);\r\n    const minutes = Math.floor((seconds % 3600) / 60);\r\n    const remainingSeconds = seconds % 60;\r\n\r\n    return `${hours}H${minutes}M${remainingSeconds}S`;\r\n}\r\n\r\nasync function hasPageFullyLoaded(){\r\n    var loader = document.querySelector('cw-loader.absolute');\r\n    var footer = document.querySelector('cw-footer');\r\n\r\n    if (document.readyState === 'complete') {\r\n        if(footer){\r\n            if (!loader) {\r\n                return true;\r\n            } else {\r\n                var spinnerContainer = loader.querySelector('.spinner-container');\r\n                if (spinnerContainer) {\r\n                    return false;\r\n                } else {\r\n                    return areThereCasesVisibleOnPage();\r\n                }\r\n            }\r\n        } else {\r\n            return false;\r\n        }\r\n        \r\n    } else {\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function areThereCasesVisibleOnPage(){\r\n    var cases = document.querySelector('button[data-test=\"open-case\"]');\r\n\r\n    if(cases == null){\r\n        return false;\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nasync function getTime() {\r\n    var section = document.querySelector('section.grid.gaming');\r\n\r\n    while(!section){\r\n        await delay(100);\r\n        section = document.querySelector('section.grid.gaming');\r\n    }\r\n\r\n    const buttons = section.querySelectorAll('.open-btn');\r\n    var enabledButtons = Array.from(buttons).filter(button => !button.disabled);\r\n    if(enabledButtons.length > 0){\r\n        return formatTime(3);\r\n    }\r\n\r\n    const elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\n    while(elements.length == 0){\r\n        await delay(100);\r\n        elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n    }\r\n\r\n    const timesInSeconds = [];\r\n    \r\n    for (const element of elements) {\r\n        if (element.innerText.trim() !== '' && /\\d/.test(element.innerText)) {\r\n            const timeInSeconds = parseTime(element.innerText);\r\n            timesInSeconds.push(timeInSeconds);\r\n            console.log(element.innerText);\r\n            //return element.innerText;\r\n        }\r\n    }\r\n\r\n    if (timesInSeconds.length === 0) return null;\r\n\r\n    const smallestTimeInSeconds = Math.min(...timesInSeconds);\r\n    const smallestTimeFormatted = formatTime(smallestTimeInSeconds);\r\n    console.log(smallestTimeFormatted); // Log the smallest time to console\r\n    return smallestTimeFormatted;\r\n}\r\n\r\nasync function waitForMessage(){\r\n    var result = await mainLoop();\r\n    await delay(100);\r\n    chrome.webview.postMessage(\"TimeMessage: \" + result);\r\n    console.log(result);\r\n}\r\n\r\nwaitForMessage();";
+                string script = "async function mainLoop() {\r\n    var hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    while (!hasPageFullyLoadedCheck) {\r\n        console.log(\"Page hasn't loaded yet...\");\r\n        await delay(100);\r\n        hasPageFullyLoadedCheck = await hasPageFullyLoaded();\r\n    }\r\n\r\n    await delay(100);\r\n    return await getTime();\r\n}\r\n\r\nasync function delay(time) {\r\n    return new Promise(resolve => setTimeout(resolve, time));\r\n}\r\n\r\nfunction parseTime(timeString) {\r\n    const regex = /(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?/;\r\n    const match = timeString.match(regex);\r\n\r\n    if (!match) return 0; // Return 0 if the time string format is invalid\r\n\r\n    const hours = parseInt(match[1]) || 0;\r\n    const minutes = parseInt(match[2]) || 0;\r\n    const seconds = parseInt(match[3]) || 0;\r\n\r\n    return hours * 3600 + minutes * 60 + seconds;\r\n}\r\n\r\nfunction formatTime(seconds) {\r\n    const hours = Math.floor(seconds / 3600);\r\n    const minutes = Math.floor((seconds % 3600) / 60);\r\n    const remainingSeconds = seconds % 60;\r\n\r\n    return `${hours}H${minutes}M${remainingSeconds}S`;\r\n}\r\n\r\nasync function hasPageFullyLoaded() {\r\n    var loader = document.querySelector('cw-loader.absolute');\r\n    var footer = document.querySelector('cw-footer');\r\n\r\n    if (document.readyState === 'complete') {\r\n        if (footer) {\r\n            if (!loader) {\r\n                return true;\r\n            } else {\r\n                var spinnerContainer = loader.querySelector('.spinner-container');\r\n                if (spinnerContainer) {\r\n                    return false;\r\n                } else {\r\n                    return areThereCasesVisibleOnPage();\r\n                }\r\n            }\r\n        } else {\r\n            return false;\r\n        }\r\n    } else {\r\n        return false;\r\n    }\r\n}\r\n\r\nasync function areThereCasesVisibleOnPage() {\r\n    var cases = document.querySelector('button[data-test=\"open-case\"]');\r\n\r\n    if (cases == null) {\r\n        return false;\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nvar attemptedRetry = false;\r\n\r\nasync function getTime() {\r\n    var section = document.querySelector('section.grid.gaming');\r\n\r\n    while (!section) {\r\n        await delay(100);\r\n        section = document.querySelector('section.grid.gaming');\r\n    }\r\n\r\n    var buttons = section.querySelectorAll('.open-btn');\r\n    var enabledButtons = Array.from(buttons).filter(button => !button.disabled);\r\n    if (enabledButtons.length > 0) {\r\n        return formatTime(3);\r\n    }\r\n\r\n    var elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n\r\n    while (elements.length == 0) {\r\n        await delay(100);\r\n        elements = section.querySelectorAll('cw-countdown span:not(.text-warning)');\r\n    }\r\n\r\n    var timesInSeconds = [];\r\n\r\n    for (const element of elements) {\r\n        if (element.innerText.trim() !== '' && /\\d/.test(element.innerText)) {\r\n            const timeInSeconds = parseTime(element.innerText);\r\n            timesInSeconds.push(timeInSeconds);\r\n            console.log(element.innerText);\r\n        }\r\n    }\r\n\r\n    if (timesInSeconds.length === 0) {\r\n        if(attemptedRetry){\r\n            return \"null\";\r\n        }\r\n\r\n        console.log(\"Failed to find any countdowns... retrying\");\r\n        attemptedRetry = true;\r\n        return getTime();\r\n    }\r\n\r\n    var smallestTimeInSeconds = Math.min(...timesInSeconds);\r\n    var smallestTimeFormatted = formatTime(smallestTimeInSeconds);\r\n    console.log(smallestTimeFormatted); // Log the smallest time to console\r\n    return smallestTimeFormatted;\r\n}\r\n\r\nasync function waitForMessage() {\r\n    var result = await mainLoop();\r\n    await delay(100);\r\n    chrome.webview.postMessage(\"TimeMessage: \" + result);\r\n    console.log(result);\r\n}\r\n\r\nwaitForMessage();";
                 var timeLeft = await webView21.ExecuteScriptAsync(script);
 
                 secondsElapsed = 0;
@@ -536,6 +552,14 @@ namespace WebBrowser
                         Form1._instance.webView21.Source = result;
                     }
                 }
+            }
+        }
+
+        class clearLogFileCommand : WebBrowserCommand
+        {
+            public void executeCommand(string command, string[] args)
+            {
+                Form1._instance.clearConsoleTextFile();
             }
         }
 
