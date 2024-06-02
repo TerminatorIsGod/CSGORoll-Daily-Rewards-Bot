@@ -69,7 +69,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
             this.splitContainer1.Size = new System.Drawing.Size(1289, 654);
-            this.splitContainer1.SplitterDistance = 139;
+            this.splitContainer1.SplitterDistance = 122;
             this.splitContainer1.TabIndex = 0;
             this.splitContainer1.TabStop = false;
             // 
@@ -111,6 +111,7 @@
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
             this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -122,13 +123,14 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer2.Size = new System.Drawing.Size(1146, 654);
+            this.splitContainer2.Size = new System.Drawing.Size(1163, 654);
             this.splitContainer2.SplitterDistance = 577;
             this.splitContainer2.TabIndex = 0;
             this.splitContainer2.TabStop = false;
             // 
             // splitContainer3
             // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer3.Location = new System.Drawing.Point(0, 0);
             this.splitContainer3.Name = "splitContainer3";
             this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -140,8 +142,8 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.webView21);
-            this.splitContainer3.Size = new System.Drawing.Size(1143, 578);
-            this.splitContainer3.SplitterDistance = 33;
+            this.splitContainer3.Size = new System.Drawing.Size(1163, 577);
+            this.splitContainer3.SplitterDistance = 32;
             this.splitContainer3.TabIndex = 1;
             this.splitContainer3.TabStop = false;
             // 
@@ -161,15 +163,17 @@
             this.webView21.AllowExternalDrop = true;
             this.webView21.CreationProperties = null;
             this.webView21.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView21.Location = new System.Drawing.Point(0, 3);
+            this.webView21.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webView21.Location = new System.Drawing.Point(0, 0);
             this.webView21.Name = "webView21";
-            this.webView21.Size = new System.Drawing.Size(1143, 538);
+            this.webView21.Size = new System.Drawing.Size(1163, 541);
             this.webView21.Source = new System.Uri("https://www.csgoroll.com/en/boxes/world/daily-free", System.UriKind.Absolute);
             this.webView21.TabIndex = 0;
             this.webView21.TabStop = false;
             this.webView21.ZoomFactor = 1D;
             this.webView21.NavigationStarting += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs>(this.webView21_NavigationStarting);
             this.webView21.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webView21_NavigationCompleted);
+            this.webView21.Click += new System.EventHandler(this.webView21_Click);
             // 
             // richTextBox1
             // 
@@ -210,7 +214,6 @@
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.SplitContainer splitContainer3;
@@ -218,6 +221,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
     }
 }
 
