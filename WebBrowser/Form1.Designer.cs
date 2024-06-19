@@ -193,6 +193,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
             this.Text = "CSGORoll Daily Collector";
+            this.Load += new System.EventHandler(this.Form1_Load_1);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
