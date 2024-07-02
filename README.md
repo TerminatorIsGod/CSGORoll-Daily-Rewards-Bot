@@ -6,6 +6,8 @@ Tutorial: [CSGORoll Daily Rewards Bot Tutorial](https://www.youtube.com/watch?v=
 
 For support either create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues) or message me on discord: TerminatorIsGod
 
+If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)
+
 # Table of Contents
 
 1. [What is this program?](#what-is-this-program)
