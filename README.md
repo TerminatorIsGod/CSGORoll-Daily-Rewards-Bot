@@ -39,7 +39,7 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 ## Common Issues
 
 ### The program isn't closing itself
-Sometimes when CSGORoll has special events it will break the program and it won't close automatically.
+Sometimes when CSGORoll has special events it will break the program and it won't close automatically. Create an issue or contact me on Discord: TerminatorIsGod
 
 ### My daily cases are no longer being collected!
 If you have moved the exe file then you need to rerun the program.
@@ -51,7 +51,7 @@ Your computer must be either on or in sleep mode. If your computer is off then t
 If the program isn't closing itself after 3 minutes then check to see if you are signed into CSGORoll. If you are signed in then try swapping pages and then going back to the rewards page.
 
 ### My internet is really, really slow so the program doesn't work.
-Download the 'slow internet' version of the program.
+The program should still work no matter how bad your internet since it searches for specific elements on the page and waits for them. Create an issue or contact me on Discord: TerminatorIsGod
 
 ## How It Works
 
