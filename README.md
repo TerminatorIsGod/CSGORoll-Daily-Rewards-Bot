@@ -8,6 +8,8 @@ For support either create an [issue](https://github.com/TerminatorIsGod/CSGORoll
 
 **If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)**
 
+**CSGORoll has recently changed how affiliate/deposit codes are applied resulting in forcing codes. If you would like a version that doesn't force the affiliate code you can request for it on Discord: TerminatorIsGod**
+
 # Table of Contents
 
 1. [What is this program?](#what-is-this-program)
