@@ -177,7 +177,7 @@ namespace WebBrowser
             {
                 printToConsole($"Seconds elapsed: {secondsElapsed}");
             }
-            if(secondsElapsed >= 120)
+            if(secondsElapsed >= 15)
             {
                 webView21.Reload();
                 secondsElapsed = 0;
@@ -241,6 +241,16 @@ namespace WebBrowser
 
                     taskDef.Triggers.Add(dailyTrigger);
 
+                    // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
+                    /*if (timespan.TotalHours > 13)
+                    {
+                        TimeSpan twelveHours = new TimeSpan(12, 2, 0);
+                        DailyTrigger additionalTrigger = new DailyTrigger();
+                        additionalTrigger.DaysInterval = 1;
+                        additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
+                        taskDef.Triggers.Add(additionalTrigger);
+                    }*/
+
                     taskDef.Actions.Clear();
                     taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
 
@@ -267,6 +277,16 @@ namespace WebBrowser
             dailyTrigger.StartBoundary = DateTime.Now.Add(timeSpanToAdd);
 
             taskDef.Triggers.Add(dailyTrigger);
+
+            // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
+            /*if (timeSpanToAdd.TotalHours > 13)
+            {
+                TimeSpan twelveHours = new TimeSpan(12, 2, 0);
+                DailyTrigger additionalTrigger = new DailyTrigger();
+                additionalTrigger.DaysInterval = 1;
+                additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
+                taskDef.Triggers.Add(additionalTrigger);
+            }*/
 
             taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
 
@@ -351,7 +371,7 @@ namespace WebBrowser
             while (waitingForJavaScriptToComplete)
             {
                 await DelayAsync(100);
-                if(secondsElapsed > 120)
+                if(secondsElapsed > 15)
                 {
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
@@ -374,7 +394,7 @@ namespace WebBrowser
             while (waitingForJavaScriptToComplete)
             {
                 await DelayAsync(100);
-                if (secondsElapsed > 120)
+                if (secondsElapsed > 15)
                 {
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
@@ -397,7 +417,7 @@ namespace WebBrowser
             while (waitingForJavaScriptToComplete)
             {
                 await DelayAsync(100);
-                if (secondsElapsed > 120)
+                if (secondsElapsed > 15)
                 {
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
