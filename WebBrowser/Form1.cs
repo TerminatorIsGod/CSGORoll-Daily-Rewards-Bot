@@ -50,6 +50,8 @@ namespace WebBrowser
 
         Dictionary<string, WebBrowserCommand> webBrowserCommands = new Dictionary<string, WebBrowserCommand>();
 
+        private const string ProxyConfigFileName = "proxyconfig.txt";
+
         protected override CreateParams CreateParams
         {
             get
@@ -71,7 +73,9 @@ namespace WebBrowser
 
             this.FormClosing += Form1_FormClosing;
 
-            initalizeAsync();
+            var proxyServer = GetProxyConfigFromFile();
+
+            initalizeAsync(proxyServer);
 
             taskName = ConfigurationManager.AppSettings["taskName"];
 
@@ -97,10 +101,102 @@ namespace WebBrowser
             }
         }
 
-        private async void initalizeAsync()
+        private (string Proxy, string ProxyType, string Username, string Password) GetProxyConfigFromFile()
         {
-            await webView21.EnsureCoreWebView2Async(null);
+            string proxy = null;
+            string proxyType = null;
+            string username = null;
+            string password = null;
+
+            // Check if the proxy configuration file exists
+            if (File.Exists(ProxyConfigFileName))
+            {
+                try
+                {
+                    // Read all lines from the file
+                    foreach (var line in File.ReadAllLines(ProxyConfigFileName))
+                    {
+                        var parts = line.Split('=');
+                        if (parts.Length == 2)
+                        {
+                            switch (parts[0].Trim().ToLower())
+                            {
+                                case "type":
+                                    proxyType = parts[1].Trim().ToLower();
+                                    break;
+                                case "address":
+                                    proxy = parts[1].Trim();
+                                    break;
+                                case "username":
+                                    username = parts[1].Trim();
+                                    break;
+                                case "password":
+                                    password = parts[1].Trim();
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    printToConsole("Failed to read the proxy configuration file");
+                }
+            }
+
+            return (proxy, proxyType, username, password); // Return the proxy details
+        }
+
+        bool providedCreds = false;
+
+        private async void initalizeAsync((string Proxy, string ProxyType, string Username, string Password) proxyConfig)
+        {
+            CoreWebView2EnvironmentOptions options = null;
+            if (!string.IsNullOrEmpty(proxyConfig.Proxy))
+            {
+                string proxyServer = proxyConfig.Proxy;
+
+                // Adjust proxy settings based on type
+                if (proxyConfig.ProxyType == "http" || proxyConfig.ProxyType == "https")
+                {
+                    options = new CoreWebView2EnvironmentOptions($"--proxy-server={proxyServer}");
+                }
+            }
+
+            var environment = await CoreWebView2Environment.CreateAsync(null, null, options);
+
+            await webView21.EnsureCoreWebView2Async(environment);
             webView21.CoreWebView2.WebMessageReceived += messagedReceived;
+
+            // Set up proxy authentication if credentials are provided
+            if (!string.IsNullOrEmpty(proxyConfig.Username) && !string.IsNullOrEmpty(proxyConfig.Password))
+            {
+                webView21.CoreWebView2.BasicAuthenticationRequested += (sender, args) =>
+                {
+                    var challenge = args.Challenge;
+
+                    // Check if the challenge is for the proxy and if credentials are provided
+                    if (!providedCreds && !string.IsNullOrEmpty(proxyConfig.Username) && !string.IsNullOrEmpty(proxyConfig.Password))
+                    {
+                        args.Response.UserName = proxyConfig.Username;
+                        args.Response.Password = proxyConfig.Password;
+
+                        providedCreds = true;
+
+                        // Log the authentication process
+                        printToConsole("Provided proxy authentication credentials.");
+                    }
+                    else
+                    {
+                        // Optionally, cancel the authentication request if no credentials are provided
+                        //args.Cancel = true;
+                        printToConsole("Username and/or password is most likely incorrect.");
+                    }
+                };
+            }
+
+            webView21.CoreWebView2.Navigate("https://www.csgoroll.com/en/boxes/world/daily-free");
+
+            //("https://www.google.com");
 
             timer = new Timer();
             timer.Interval = 1000;
@@ -177,7 +273,7 @@ namespace WebBrowser
             {
                 printToConsole($"Seconds elapsed: {secondsElapsed}");
             }
-            if(secondsElapsed >= 15)
+            if(secondsElapsed >= 15 && !(webView21.Source.ToString().Contains("steamcommunity.com")))
             {
                 webView21.Reload();
                 secondsElapsed = 0;
@@ -242,14 +338,14 @@ namespace WebBrowser
                     taskDef.Triggers.Add(dailyTrigger);
 
                     // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
-                    if (timespan.TotalHours > 13)
+                    /*if (timespan.TotalHours > 13)
                     {
                         TimeSpan twelveHours = new TimeSpan(12, 2, 0);
                         DailyTrigger additionalTrigger = new DailyTrigger();
                         additionalTrigger.DaysInterval = 1;
                         additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
                         taskDef.Triggers.Add(additionalTrigger);
-                    }
+                    }*/
 
                     taskDef.Actions.Clear();
                     taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
@@ -279,14 +375,14 @@ namespace WebBrowser
             taskDef.Triggers.Add(dailyTrigger);
 
             // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
-            if (timeSpanToAdd.TotalHours > 13)
+            /*if (timeSpanToAdd.TotalHours > 13)
             {
                 TimeSpan twelveHours = new TimeSpan(12, 2, 0);
                 DailyTrigger additionalTrigger = new DailyTrigger();
                 additionalTrigger.DaysInterval = 1;
                 additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
                 taskDef.Triggers.Add(additionalTrigger);
-            }
+            }*/
 
             taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
 

@@ -167,7 +167,6 @@
             this.webView21.Location = new System.Drawing.Point(0, 0);
             this.webView21.Name = "webView21";
             this.webView21.Size = new System.Drawing.Size(1163, 541);
-            this.webView21.Source = new System.Uri("https://www.csgoroll.com/en/boxes/world/daily-free", System.UriKind.Absolute);
             this.webView21.TabIndex = 0;
             this.webView21.TabStop = false;
             this.webView21.ZoomFactor = 1D;
