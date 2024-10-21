@@ -16,10 +16,12 @@ For support either create an [issue](https://github.com/TerminatorIsGod/CSGORoll
 2. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
 3. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
 4. [How to Use](#how-to-use)
-5. [Common Issues](#common-issues)
-6. [How It Works](#how-it-works)
-7. [Commands/Console](#commandsconsole)
-8. [Safety/Other](#safetyother)
+5. [Proxy Setup](#proxy-setup)
+6. [Multiple Accounts](#multiple-accounts)
+7. [Common Issues](#common-issues)
+8. [How It Works](#how-it-works)
+9. [Commands/Console](#commandsconsole)
+10. [Safety/Other](#safetyother)
 
 ## What is this program?
 
@@ -37,6 +39,33 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 4. Watch your daily cases get claimed
 
 **Note:** Ensure your computer is not turned off during the daily case collection time. Sleep mode is acceptable. If your computer is turned off, the program won't run, preventing the collection of your free daily cases.
+
+## Proxy Setup
+Supported proxy types: http & https
+Supported auth types: unauthenticated and basic authentication
+
+Create a text file in the same directory as the exe named "proxyconfig.txt"
+
+Paste and modify the following into the file you just made. If you're using unauthenticated proxies then remove the username and password lines. If you are using https then change type from 'http' to 'https'.
+
+type=http <br>
+address=http://127.0.0.1:3128 <br>
+username=myuser <br>
+password=mypassword
+
+
+## Multiple Accounts
+[Youtube video tutorial](https://youtu.be/B2sp25ok0VI?t=191)
+
+To setup multiple accounts first thing you will want to do is duplicate the folder that contains all of the program files for each account you want to setup. 
+
+Once you do that for each folder you duplicated you will want to open up the file named "CSGORollDailyCollector.exe.config". 
+
+Inside this file look for (should be line 4) the line that says "<add key="taskName" value="csgoRollAutoDaily"/>" change the value part to something differnet. 
+
+Example: `<add key="taskName" value="csgoRollAutoDailyAlternative"/>`
+
+Make sure these are unique values otherwise they will overwrite other tasks and then the program will never run.
 
 ## Common Issues
 
