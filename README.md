@@ -41,7 +41,7 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 **Note:** Ensure your computer is not turned off during the daily case collection time. Sleep mode is acceptable. If your computer is turned off, the program won't run, preventing the collection of your free daily cases.
 
 ## Disable Auto Update Feature
-Open up the file named "CSGORollDailyCollector.exe.config" with any text editor. On the 5th line, you should see this '<add key="autoUpdate" value="true" />' change the value from 'true' to 'false' like this '<add key="autoUpdate" value="false" />'. Save the file and you're done.
+Open up the file named "CSGORollDailyCollector.exe.config" with any text editor. On the 5th line, you should see this `<add key="autoUpdate" value="true" />` change the value from 'true' to 'false' like this `<add key="autoUpdate" value="false" />`. Save the file and you're done.
 
 ## Proxy Setup
 Supported proxy types: http & https
