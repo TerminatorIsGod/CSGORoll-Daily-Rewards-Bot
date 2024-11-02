@@ -94,7 +94,8 @@ namespace WebBrowser
 
             if (!File.Exists(filePathFolder + "Initalized.Egario"))
             {
-                showInitalizationScreen = true; 
+                //showInitalizationScreen = true; 
+                textBox2.Visible = true;
             } else
             {
                 textBox2.Visible = true;
@@ -348,14 +349,14 @@ namespace WebBrowser
                     taskDef.Triggers.Add(dailyTrigger);
 
                     // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
-                    if (timespan.TotalHours > 13)
+                    /*if (timespan.TotalHours > 13)
                     {
                         TimeSpan twelveHours = new TimeSpan(12, 2, 0);
                         DailyTrigger additionalTrigger = new DailyTrigger();
                         additionalTrigger.DaysInterval = 1;
                         additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
                         taskDef.Triggers.Add(additionalTrigger);
-                    }
+                    }*/
 
                     taskDef.Actions.Clear();
                     taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
@@ -385,14 +386,14 @@ namespace WebBrowser
             taskDef.Triggers.Add(dailyTrigger);
 
             // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
-            /*if (timeSpanToAdd.TotalHours > 13)
+            if (timeSpanToAdd.TotalHours > 13)
             {
                 TimeSpan twelveHours = new TimeSpan(12, 2, 0);
                 DailyTrigger additionalTrigger = new DailyTrigger();
                 additionalTrigger.DaysInterval = 1;
                 additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
                 taskDef.Triggers.Add(additionalTrigger);
-            }*/
+            }
 
             taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
 
