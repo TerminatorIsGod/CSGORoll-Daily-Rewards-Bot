@@ -277,6 +277,8 @@ namespace WebBrowser
             richTextBox2.Text = "URL: " + url;
         }
 
+        private int timesReloaded = 0;
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             secondsElapsed++;
@@ -286,7 +288,18 @@ namespace WebBrowser
             }
             if(secondsElapsed >= 15 && !(webView21.Source.ToString().Contains("steamcommunity.com")))
             {
+                timesReloaded++;
+
+                if(timesReloaded >= 100)
+                {
+                    //restart program 
+
+                    Application.Restart();
+                    Environment.Exit(0);
+                }
+
                 webView21.Reload();
+                
                 secondsElapsed = 0;
             }
         }
