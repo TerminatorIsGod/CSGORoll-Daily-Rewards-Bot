@@ -16,12 +16,13 @@ For support either create an [issue](https://github.com/TerminatorIsGod/CSGORoll
 2. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
 3. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
 4. [How to Use](#how-to-use)
-5. [Proxy Setup](#proxy-setup)
-6. [Multiple Accounts](#multiple-accounts)
-7. [Common Issues](#common-issues)
-8. [How It Works](#how-it-works)
-9. [Commands/Console](#commandsconsole)
-10. [Safety/Other](#safetyother)
+5. [DIscord Notifications](#discord-notifications)
+6. [Proxy Setup](#proxy-setup)
+7. [Multiple Accounts](#multiple-accounts)
+8. [Common Issues](#common-issues)
+9. [How It Works](#how-it-works)
+10. [Commands/Console](#commandsconsole)
+11. [Safety/Other](#safetyother)
 
 ## What is this program?
 
@@ -42,6 +43,12 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 
 ## Disable Auto Update Feature
 Open up the file named "CSGORollDailyCollector.exe.config" with any text editor. On the 5th line, you should see this `<add key="autoUpdate" value="true" />` change the value from 'true' to 'false' like this `<add key="autoUpdate" value="false" />`. Save the file and you're done.
+
+## Discord notifications
+Allows you to receive discord notifications when the program finishes running with your username and current balance.
+To set up discord notifications, first you need to create a webhook in discord (if you don't know how to then search it up). After you have your webhook url, edit 'CSGORollDailyCollector.exe.config' on line 6, set the value to whatever your webhook URL is, save and you're done.
+
+Example: `<add key="discordWebhookURL" value="https://discord.com/api/webhooks/1307902738264231967/AGMeuh09iANrXOPgL_X-oxnzXAnbQ4iEu32WQaoeIj8j5p70rtgkbVxxYDboM0JyHon8" /> `
 
 ## Proxy Setup
 Supported proxy types: http & https
