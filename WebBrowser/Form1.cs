@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
@@ -39,7 +40,7 @@ namespace WebBrowser
         bool waitingForTime = false;
         string timeLeftStr = "";
 
-        private Timer timer;
+        private System.Windows.Forms.Timer timer;
         private int secondsElapsed;
 
         bool waitingForJavaScriptToComplete = false;
@@ -98,6 +99,7 @@ namespace WebBrowser
             {
                 //showInitalizationScreen = true; 
                 textBox2.Visible = true;
+                File.Create(filePathFolder + "Initalized.Egario");
             } else
             {
                 textBox2.Visible = true;
@@ -211,7 +213,7 @@ namespace WebBrowser
 
             //("https://www.google.com");
 
-            timer = new Timer();
+            timer = new System.Windows.Forms.Timer();
             timer.Interval = 1000;
             timer.Tick += Timer_Tick;
 
@@ -462,7 +464,8 @@ namespace WebBrowser
 
                 await DelayAsync(500);
 
-                openAllCases();
+                openAllCasesChecker();
+                //openAllCases();
                 //TimeSpan ts = await getTimeLeft();
                 /*printToConsole($"Time Seconds Left: {ts.TotalSeconds}");
                 if (ts.TotalSeconds > 0)
@@ -479,8 +482,48 @@ namespace WebBrowser
             
         }
 
-        private async void openAllCases()
+        private CancellationTokenSource _cancellationTokenSource;
+
+        private async System.Threading.Tasks.Task openAllCasesChecker()
         {
+            // Cancel the previous operation if it's running
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+
+                try
+                {
+                    // Wait for the previous task to stop
+                    await System.Threading.Tasks.Task.Delay(100, _cancellationTokenSource.Token); // Adjust delay as necessary
+                }
+                catch (TaskCanceledException)
+                {
+                    // Expected cancellation
+                }
+            }
+
+            // Create a new CancellationTokenSource
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                // Run the openAllCases method with the new cancellation token
+                await openAllCases(_cancellationTokenSource.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                Console.WriteLine("Operation was canceled.");
+            }
+        }
+
+        private async System.Threading.Tasks.Task openAllCases(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             printToConsole("openAllCases called");
             //printToConsole("Case check 1");
             waitingForJavaScriptToComplete = true;
@@ -498,9 +541,20 @@ namespace WebBrowser
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
                 }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    printToConsole("Cancelling old openAllCases...");
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             }
 
             printToConsole("openAllCases script completed 1");
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             TimeSpan tsA1 = await getTimeLeft();
 
@@ -512,6 +566,12 @@ namespace WebBrowser
 
             printToConsole("openAllCases script executed again");
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             secondsElapsed = 0;
             while (waitingForJavaScriptToComplete)
             {
@@ -521,11 +581,22 @@ namespace WebBrowser
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
                 }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    printToConsole("Cancelling old openAllCases...");
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             }
 
             printToConsole("openAllCases script completed 2");
 
             TimeSpan tsA2 = await getTimeLeft();
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             await DelayAsync(3000);
 
@@ -535,6 +606,12 @@ namespace WebBrowser
 
             printToConsole("openAllCases script executed again");
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             secondsElapsed = 0;
             while (waitingForJavaScriptToComplete)
             {
@@ -544,14 +621,31 @@ namespace WebBrowser
                     secondsElapsed = 0;
                     await webView21.ExecuteScriptAsync(script);
                 }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    printToConsole("Cancelling old openAllCases...");
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             }
 
             printToConsole("openAllCases script completed 3");
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             printToConsole("All cases are open");
             TimeSpan ts = await getTimeLeft();
 
-            if(tsA2 < ts)
+            if (cancellationToken.IsCancellationRequested)
+            {
+                printToConsole("Cancelling old openAllCases...");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            if (tsA2 < ts)
             {
                 thereIsATimer(tsA2);
             } else
@@ -645,7 +739,7 @@ namespace WebBrowser
                     printToConsole("Sent discord webhook message...");
                 } else
                 {
-                    printToConsole("Mo webhook URL found, not sending message...");
+                    printToConsole("No webhook URL found, not sending message...");
                 }
                 
 
