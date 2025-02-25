@@ -4,7 +4,7 @@ Developed By: TerminatorIsGod
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)  
 Tutorial: [CSGORoll Daily Rewards Bot Tutorial](https://www.youtube.com/watch?v=B2sp25ok0VI)
 
-For support either create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues) or message me on discord: TerminatorIsGod
+For support create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues)
 
 **If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)**
 
