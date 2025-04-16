@@ -4,7 +4,25 @@ Developed By: TerminatorIsGod
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)  
 Tutorial: [CSGORoll Daily Rewards Bot Tutorial](https://www.youtube.com/watch?v=B2sp25ok0VI)
 
-For support create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues)
+For support create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues) or join the [discord server](https://discord.gg/fy5ARFSYHV)
+
+
+# A big update is coming soon!
+Feel free to join this [discord server](https://discord.gg/fy5ARFSYHV) for support and updates. <br>
+https://discord.gg/fy5ARFSYHV <br><br>
+Features coming in the new update: <br>
+- Improved reliability (im completely changing how it opens the cases to a much better method which doesn't require directly interacting with the webpage)
+- Improved speed (with the new much more reliable method, it removes the needed checks and delays greatly improving the speed cases are opened from taking a couple minutes to almost instant)
+- Select what risk you want for each individual case
+- Select which cases you want to open and the order (if they are openable at the same time)
+- Select if you want to do a case battle with your dailies, which cases and the battle settings
+- Improved webhook integration, instead of just telling you the balance it will tell you what item you got, the odds, and value
+- Config file improvements
+- Bunch of other small minor changes
+<br>
+After this big update, I plan on offering hosting the program for people that join the [discord server](https://discord.gg/fy5ARFSYHV). It's currently undecided if this is going to be offered for free and have donations to help fund the server or if it's going to cost a small fee. People who use this service would be able to fully customize and interact with their instances of the collector using a discord bot.
+
+<br><br><br>
 
 **If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)**
 
