@@ -36,7 +36,7 @@ namespace WebBrowser
             ConfigManager cm = new ConfigManager();
 
             bool autoUpdate = cm.GetConfigFile().autoUpdateProgram;
-            autoUpdate = false;
+            //autoUpdate = false;
 
             if (autoUpdate)
             {

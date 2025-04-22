@@ -82,20 +82,20 @@ namespace WebBrowser.Config
 
         };
 
-        public string infoStringPvpStrategyInfo1 = "Strategy Options:";
-        public string infoStringPvpStrategyInfo2 = "'HIGHEST_SUM' (Regular)  'LOWEST_SUM' (Crazy)";
-        public string infoStringPvpStrategyInfo3 = "'HIGHEST_BET_PAYOUT' (Clutch Regular)  'LOWEST_BET_PAYOUT' (Clutch Crazy)";
-        public string infoStringPvpStrategyInfo4 = "'HIGHEST_LAST_BET_PAYOUT' (Terminal Regular)  'LOWEST_LAST_BET_PAYOUT' (Terminal Crazy)";
+        public string infoStringPvpStrategyInfo1 { get; set; } = "Strategy Options:";
+        public string infoStringPvpStrategyInfo2 { get; set; } = "'HIGHEST_SUM' (Regular)  'LOWEST_SUM' (Crazy)";
+        public string infoStringPvpStrategyInfo3 { get; set; } = "'HIGHEST_BET_PAYOUT' (Clutch Regular)  'LOWEST_BET_PAYOUT' (Clutch Crazy)";
+        public string infoStringPvpStrategyInfo4 { get; set; } = "'HIGHEST_LAST_BET_PAYOUT' (Terminal Regular)  'LOWEST_LAST_BET_PAYOUT' (Terminal Crazy)";
         public string pvpStrategy { get; set; } = "HIGHEST_SUM";
 
-        public string infoStringPvpNumOfPlayers = "Options: 2, 3, 4, 6";
+        public string infoStringPvpNumOfPlayers { get; set; } = "Options: 2, 3, 4, 6";
         public int pvpNumOfPlayers { get; set; } = 4;
 
         public string infoStringPvpNumOfTeams1 { get; set; } = "Options: 1, 2, 3, 4";
         public string infoStringPvpNumOfTeams2 { get; set; } = "if 1 number of players can be either 2, 3, 4";
         public string infoStringPvpNumOfTeams3 { get; set; } = "if 2 number of players can be either 2, 4, 6";
         public string infoStringPvpNumOfTeams4 { get; set; } = "if 3 number of players can be either 3, 6";
-        public string infoStringPvpNumOfTeams5 { get; set; } = "if 4 number of players can only be either 4";
+        public string infoStringPvpNumOfTeams5 { get; set; } = "if 4 number of players can only be 4";
         public int pvpNumOfTeams { get; set; } = 2;
 
         public string infoStringPvpMode { get; set; } = "Options: 'TEAM' or 'SINGLE'";

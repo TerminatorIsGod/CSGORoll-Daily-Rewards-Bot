@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -26,14 +27,15 @@ namespace WebBrowser.Config
         JsonSerializerOptions options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            WriteIndented = true
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         public ConfigManager()
         {
             _Instance = this;
-            LogsFile = exeFolder + "logs.Egario";
-            ConfigFile = exeFolder + "config.json";
+            LogsFile = Path.Combine(exeFolder, "logs.Egario");
+            ConfigFile = Path.Combine(exeFolder, "config.json");
         }
 
         public string GetLogsFileLocation()
