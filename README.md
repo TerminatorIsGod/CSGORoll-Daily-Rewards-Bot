@@ -2,49 +2,61 @@
 
 Developed By: TerminatorIsGod  
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)  
-Tutorial: [CSGORoll Daily Rewards Bot Tutorial](https://www.youtube.com/watch?v=B2sp25ok0VI)
+Tutorial (OUTDATED): [CSGORoll Daily Rewards Bot Tutorial](https://www.youtube.com/watch?v=B2sp25ok0VI) <br>
+Discord Server: [https://discord.gg/fy5ARFSYHV](https://discord.gg/fy5ARFSYHV)
 
 For support create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot/issues) or join the [discord server](https://discord.gg/fy5ARFSYHV)
 
-
-# A big update is coming soon!
-Feel free to join this [discord server](https://discord.gg/fy5ARFSYHV) for support and updates. <br>
-https://discord.gg/fy5ARFSYHV <br><br>
-Features coming in the new update: <br>
-- Improved reliability (im completely changing how it opens the cases to a much better method which doesn't require directly interacting with the webpage)
-- Improved speed (with the new much more reliable method, it removes the needed checks and delays greatly improving the speed cases are opened from taking a couple minutes to almost instant)
-- Select what risk you want for each individual case
-- Select which cases you want to open and the order (if they are openable at the same time)
-- Select if you want to do a case battle with your dailies, which cases and the battle settings
-- Improved webhook integration, instead of just telling you the balance it will tell you what item you got, the odds, and value
-- Config file improvements
-- Bunch of other small minor changes
 <br>
-After this big update, I plan on offering hosting the program for people that join the [discord server](https://discord.gg/fy5ARFSYHV). It's currently undecided if this is going to be offered for free and have donations to help fund the server or if it's going to cost a small fee. People who use this service would be able to fully customize and interact with their instances of the collector using a discord bot.
 
-<br><br><br>
+### Next Planned Update
+I am currently working on offering hosting the program for people that join the [discord server](https://discord.gg/fy5ARFSYHV). It's currently undecided if this is going to be offered for free and have donations to help pay for the server or if it's going to cost a small fee. People who use this service would be able to fully customize and interact with their instances of the collector using a discord bot.
+
+<br><br>
 
 **If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)**
 
-**CSGORoll has recently changed how affiliate/deposit codes are applied resulting in forcing codes. If you would like a version that doesn't force the affiliate code you can request for it on Discord: TerminatorIsGod**
+**CSGORoll has recently changed how affiliate/deposit codes are applied resulting in forcing codes. If you would like a version that doesn't force the affiliate code you can request it in our [discord server](https://discord.gg/fy5ARFSYHV).**
 
 # Table of Contents
 
 1. [What is this program?](#what-is-this-program)
-2. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
-3. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
-4. [How to Use](#how-to-use)
-5. [DIscord Notifications](#discord-notifications)
-6. [Proxy Setup](#proxy-setup)
-7. [Multiple Accounts](#multiple-accounts)
-8. [Common Issues](#common-issues)
-9. [How It Works](#how-it-works)
-10. [Commands/Console](#commandsconsole)
-11. [Safety/Other](#safetyother)
+2. [Current Features](#features)
+3. [What's the catch/Why is it free?](#whats-the-catchwhy-is-it-free)
+4. [Does CSGORoll allow this?](#does-csgoroll-allow-this)
+5. [How to Use](#how-to-use)
+6. [Config.json](#config) <br>
+   6.1. [Auto Update](#auto-update) <br>
+   6.2. [Multiple Instances](#multiple-instances) <br>
+   6.3. [Proxy](#proxy) <br>
+   6.4  [Unbox Cases](#unbox-cases) <br>
+   6.5. [Daily Rewards Battle](#daily-rewards-battle) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;6.5.1 [Cases to Battle](#cases-to-battle) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;6.5.2 [Gamemode](#gamemode) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;6.5.3 [Numnber of Players](#number-of-players) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;6.5.4 [Number of Teams](#number-of-teams) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;6.5.5 [PvP Mode](#pvp-mode) <br>
+   6.6. [Trigger Time](#trigger-time) <br>
+   6.7. [Discord Webhook Integration](#discord-webhook-integration) <br>
+   6.8  [Default Config File](#default-config-file)
+9. [Common Issues](#common-issues)
+10. [How It Works](#how-it-works)
+11. [Commands/Console](#commandsconsole)
+12. [Safety/Other](#safetyother)
 
 ## What is this program?
 
 This program automates the collection and sells your free daily cases on CSGORoll. It does this by using Microsoft's WebView2 library to simulate a web browser. We then run some simple javascript to do stuff such as verify you are signed in, check how much longer is left to claim the cases, and to open the cases themselves. One useful feature to enhance its automation capabilities is having it so if you get signed out of CSGORoll, it will sign you back in as long as you are still signed into Steam. At no point do the developers have access to anything, it works as if you are using your regular web browser.
+
+## Features
+
+1. Automatically collects your CSGOROll daily rewards as long as your PC is on/asleep
+2. Supports daily case battles
+3. Discord webhook integration
+4. HTTP and HTTPS proxy support
+5. Auto updates
+6. Multiple instances
+7. Select which cases you want to be automatically collected
 
 ## Does CSGORoll allow this?
 
@@ -52,48 +64,300 @@ While CSGORoll's terms and conditions do not expressly prohibit the use of scrip
 
 ## How to Use
 
-1. Run the program
-2. Read the initalization page and press 'Confirm'
+1. (optional) Modify config.txt to your liking, (more info about config.json)[#config]
+2. Run the program
 3. Sign into CSGORoll using Steam
-4. Watch your daily cases get claimed
+4. Let the program do the rest
 
 **Note:** Ensure your computer is not turned off during the daily case collection time. Sleep mode is acceptable. If your computer is turned off, the program won't run, preventing the collection of your free daily cases.
+<br><br>
 
-## Disable Auto Update Feature
-Open up the file named "CSGORollDailyCollector.exe.config" with any text editor. On the 5th line, you should see this `<add key="autoUpdate" value="true" />` change the value from 'true' to 'false' like this `<add key="autoUpdate" value="false" />`. Save the file and you're done.
+## Config
 
-## Discord notifications
-Allows you to receive discord notifications when the program finishes running with your username and current balance.
-To set up discord notifications, first you need to create a webhook in discord (if you don't know how to then search it up). After you have your webhook url, edit 'CSGORollDailyCollector.exe.config' on line 6, set the value to whatever your webhook URL is, save and you're done.
+Any line in the config that has ```info``` in the variable name is there to provide information about the variable below and does nothing.
+<br><br>
 
-Example: `<add key="discordWebhookURL" value="https://discord.com/api/webhooks/1307902738264231967/AGMeuh09iANrXOPgL_X-oxnzXAnbQ4iEu32WQaoeIj8j5p70rtgkbVxxYDboM0JyHon8" /> `
+### Auto Update
 
-## Proxy Setup
-Supported proxy types: http & https
-Supported auth types: unauthenticated and basic authentication
+The auto update feature can be disabled by changing ```true``` to ```false```
 
-Create a text file in the same directory as the exe named "proxyconfig.txt"
+```
+"autoUpdateProgram": true,
+```
+<br><br>
 
-Paste and modify the following into the file you just made. If you're using unauthenticated proxies then remove the username and password lines. If you are using https then change type from 'http' to 'https'.
+### Multiple Instances
+To have multiple instances of the program and to prevent them from overwriting each other, first download the program again in another folder so you have multiple exe files and config files in different places. In each of the config files set a unique value for
+```
+"taskSchedulerTaskName": "CSGORoll Daily Collector",
+```
+Run the exe, and now you have multiple instances of it.
+<br><br>
 
-type=http <br>
-address=http://127.0.0.1:3128 <br>
-username=myuser <br>
-password=mypassword
+### Proxy
+The proxy can be configured with these four lines, as long as ```proxyAddress``` is empty then it will be disabled. The program only supports ```http``` or ```https```, sockets won't work. <br>
+```proxyAddress```   the proxy IP <br>
+```proxyType```      the proxy type, either ```http``` or ```https``` <br>
+```proxyUsername```  username for authentication if required <br>
+```proxyPassword```  password for authentication if required <br>
+<br>
+```
+  "proxyAddress": "",
+  "proxyTypeInfo": "Proxy type options: 'http' or 'https'",
+  "proxyType": "",
+  "proxyUsername": "",
+  "proxyPassword": "",
+```
+<br><br>
 
 
-## Multiple Accounts
-[Youtube video tutorial](https://youtu.be/B2sp25ok0VI?t=191)
 
-To setup multiple accounts first thing you will want to do is duplicate the folder that contains all of the program files for each account you want to setup. 
+### Unbox Cases 
+<br>
+Configure what cases, the risk and the order you want to unbox them. It should be pretty self explainatory, ```level``` is the case level, ```risk``` is the risk percent you want. <br> <br>
 
-Once you do that for each folder you duplicated you will want to open up the file named "CSGORollDailyCollector.exe.config". 
+Default List: <br>
+```
+"casesToOpen": [
+    {
+      "level": "2",
+      "risk": "50"
+    },
+    {
+      "level": "10",
+      "risk": "50"
+    },
+    {
+      "level": "20",
+      "risk": "50"
+    },
+    {
+      "level": "30",
+      "risk": "50"
+    },
+    {
+      "level": "40",
+      "risk": "50"
+    },
+    {
+      "level": "50",
+      "risk": "50"
+    },
+    {
+      "level": "60",
+      "risk": "50"
+    },
+    {
+      "level": "70",
+      "risk": "50"
+    },
+    {
+      "level": "80",
+      "risk": "50"
+    },
+    {
+      "level": "90",
+      "risk": "50"
+    },
+    {
+      "level": "100",
+      "risk": "50"
+    }
+  ],
+```
+<br><br>
 
-Inside this file look for (should be line 4) the line that says "<add key="taskName" value="csgoRollAutoDaily"/>" change the value part to something differnet. 
+### Daily Rewards Battle 
+<br>
+Leave as is if you don't care to setup daily case battles.
 
-Example: `<add key="taskName" value="csgoRollAutoDailyAlternative"/>`
 
-Make sure these are unique values otherwise they will overwrite other tasks and then the program will never run.
+#### Cases to Battle
+```
+"casesToPvpbattle": [],
+```
+<br>
+
+The ```casesToOpen``` list works the same as the [unbox cases](#unbox-cases) feature above. It is highly recommended to have the cases in both the battle list and the regular case opening list so If something goes wrong for example a case was already opened in the list. Then it will fallback to just opening the cases as normal. <br>
+
+Example List:
+```
+"casesToPvpbattle": [
+    {
+      "level": "2",
+      "risk": "50"
+    },
+    {
+      "level": "10",
+      "risk": "50"
+    },
+    {
+      "level": "20",
+      "risk": "50"
+    }
+  ],
+```
+
+<br><br>
+
+#### Gamemode: 
+<br>
+```"pvpStrategy": "HIGHEST_SUM",``` <br><br>
+
+Options: <br>
+Regular:          ```HIGHEST_SUM``` <br>
+Crazy:            ```LOWEST_SUM``` <br>
+Clutch Regular:   ```HIGHEST_BET_PAYOUT``` <br>
+Clutch Crazy:     ```LOWEST_BET_PAYOUT``` <br>
+Termianl Regular: ```HIGHEST_LAST_BET_PAYOUT``` <br>
+Terminal Crazy:   ```LOWEST_LAST_BET_PAYOUT``` <br>
+
+<br>
+
+#### Number of Players: 
+<br>
+```"pvpNumOfPlayers": 4,``` <br><br>
+
+Options: <br>
+```2``` number of teams must be either ```1``` or ```2``` <br>
+```3``` number of teams must be either ```1``` or ```3``` <br>
+```4``` number of teams must be either ```1``` or ```2``` <br>
+```6``` number of teams must be either ```2``` or ```3``` <br>
+
+<br><br>
+
+#### Number of Teams: 
+<br>
+```"pvpNumOfTeams": 2,```<br><br>
+
+For shared mode set this to ```1``` <br><br>
+
+Options: <br>
+```1``` number of players can either be ```2```, ```3```, ```4``` <br>
+```2``` number of players can either be ```2```, ```4```, ```6``` <br>
+```3``` number of players can either be ```3```, ```6``` <br>
+```4``` number of players can either be ```4``` <br>
+
+#### PvP Mode
+<br>
+```"pvpMode": "TEAM",```
+<br>
+This will automatically be set based on the above settings. <br> <br>
+
+Options: <br>
+```TEAM```   for team battles
+```SINGLE``` for no teams
+
+<br><br>
+
+### Trigger Time 
+<br>
+By default the program will trigger when your cases become available but sometimes you might want it to run at a different time. <br><br>
+
+The format is ```HH:MM:SS```, it uses 24hr clock and is in local time. ```00:00:00``` sets it to automatic. 
+
+```
+  "triggerTime": "00:00:00",
+```
+
+### Discord Webhook Integration
+Be careful of people bruteforcing discord webhook urls! They can spam your discord channel with whatever they want. <br><br>
+
+To setup the discord webhook first make sure you have created a webhook inside and have the URL. After you have the URL change ```enableDiscordWebhook``` from ```false``` to ```true``` then replace the value of ```discordWebhookURL``` with your URL. <br>
+For exmaple ```"discordWebhookURL": "https://discord.com/api/webhooks/1364332891156512898/cEHRS5i46LHI-U0uZUW3Mfa1QzUx60zDl1CZw1jsW8l0wPjM_COPgwrW7An-Oua62lFa",``` <br>
+```
+  "enableDiscordWebhook": false,
+  "discordWebhookURL": "be careful people can brute force discord webhooks and spam messages",
+```
+<br><br>
+
+### Default Config File
+```
+{
+  "taskSchedulerTaskName": "CSGORoll Daily Collector",
+  "autoUpdateProgram": true,
+  "proxyAddress": "",
+  "proxyTypeInfo": "Proxy type options: 'http' or 'https'",
+  "proxyType": "",
+  "proxyUsername": "",
+  "proxyPassword": "",
+  "infoString": "You can remove/add/reorder the list below based on how/which cases you want to open. PvP battles will run first, incase that fails I recommend keeping them here too",
+  "casesToOpen": [
+    {
+      "level": "2",
+      "risk": "50"
+    },
+    {
+      "level": "10",
+      "risk": "50"
+    },
+    {
+      "level": "20",
+      "risk": "50"
+    },
+    {
+      "level": "30",
+      "risk": "50"
+    },
+    {
+      "level": "40",
+      "risk": "50"
+    },
+    {
+      "level": "50",
+      "risk": "50"
+    },
+    {
+      "level": "60",
+      "risk": "50"
+    },
+    {
+      "level": "70",
+      "risk": "50"
+    },
+    {
+      "level": "80",
+      "risk": "50"
+    },
+    {
+      "level": "90",
+      "risk": "50"
+    },
+    {
+      "level": "100",
+      "risk": "50"
+    }
+  ],
+  "infoStringpvp": "This list behaves the same as above but allows you to battle it. Providing invalid settings will cause it to try and correct it!",
+  "casesToPvpbattle": [],
+  "infoStringPvpStrategyInfo1": "Strategy Options:",
+  "infoStringPvpStrategyInfo2": "'HIGHEST_SUM' (Regular)  'LOWEST_SUM' (Crazy)",
+  "infoStringPvpStrategyInfo3": "'HIGHEST_BET_PAYOUT' (Clutch Regular)  'LOWEST_BET_PAYOUT' (Clutch Crazy)",
+  "infoStringPvpStrategyInfo4": "'HIGHEST_LAST_BET_PAYOUT' (Terminal Regular)  'LOWEST_LAST_BET_PAYOUT' (Terminal Crazy)",
+  "pvpStrategy": "HIGHEST_SUM",
+  "infoStringPvpNumOfPlayers": "Options: 2, 3, 4, 6",
+  "pvpNumOfPlayers": 4,
+  "infoStringPvpNumOfTeams1": "Options: 1, 2, 3, 4",
+  "infoStringPvpNumOfTeams2": "if 1 number of players can be either 2, 3, 4",
+  "infoStringPvpNumOfTeams3": "if 2 number of players can be either 2, 4, 6",
+  "infoStringPvpNumOfTeams4": "if 3 number of players can be either 3, 6",
+  "infoStringPvpNumOfTeams5": "if 4 number of players can only be either 4",
+  "pvpNumOfTeams": 2,
+  "infoStringPvpMode": "Options: 'TEAM' or 'SINGLE'",
+  "pvpMode": "TEAM",
+  "triggerTime": "00:00:00",
+  "disableAffiliate": "why would you want to disbale this?",
+  "enableDiscordWebhook": false,
+  "discordWebhookURL": "be careful people can brute force discord webhooks and spam messages",
+  "identifier": "for special hosting feature that can be found in the discord server",
+  "commport": 0,
+  "configVersion": "2.0.0"
+}
+```
+
+
+
+
 
 ## Common Issues
 
@@ -110,7 +374,7 @@ Your computer must be either on or in sleep mode. If your computer is off then t
 If the program isn't closing itself after 3 minutes then check to see if you are signed into CSGORoll. If you are signed in then try swapping pages and then going back to the rewards page.
 
 ### My internet is really, really slow so the program doesn't work.
-The program should still work no matter how bad your internet since it searches for specific elements on the page and waits for them. Create an issue or contact me on Discord: TerminatorIsGod
+The program should still work no matter how bad your internet since it searches for specific elements on the page and waits for them. Create an issue or join our [discord server]()
 
 ## How It Works
 
@@ -127,12 +391,12 @@ There's little need for manual intervention as everything is automated. Using co
 
 ## What's the catch/Why is it free?
 
-The 'catch' lies in the automatic setting of your affiliate code. This strategic decision not only enables us to provide the program for free but also comes at no cost to you. By setting your affiliate code, you contribute to supporting the developer to continue making programs just like this one.
+The 'catch' lies in the automatic setting of your affiliate code. This decision not only enables us to provide the program for free but also comes at no cost to you. By setting your affiliate code, you contribute to supporting the developer to continue making updates and other programs just like this one.
 
 ## Safety/Other
 
 - Do not trust any downloads to this software that isn't from the official github link.
 - This program does not require any elevated privileges and shouldn't trigger anti-virus programs.
-- Anything that the program does automatically is safe and verified, but it's always better to be safe than sorry and not trust some random free program. The correct URL should always be shown right above the browser but to be safe and verify that it is correct you can always, right-click on a page and select 'inspect' to view the website's URL.
+- Do not enter commands unless you accept the risks.
 - The program does not directly save or send any user data. Microsoft manages any data storage or transmission.
 
