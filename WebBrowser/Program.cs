@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Text.Json;
 using System.Numerics;
 using System.Configuration;
+using WebBrowser.Config;
 
 namespace WebBrowser
 {
@@ -18,7 +19,7 @@ namespace WebBrowser
     {
         private static readonly string RepoOwner = "TerminatorIsGod";
         private static readonly string RepoName = "CSGORoll-Daily-Rewards-Bot";
-        private static readonly string CurrentVersion = "Release_v1.3.7";
+        private static readonly string CurrentVersion = "Release_v2.0.0";
         private static string newestVersion = "";
 
         /// <summary>
@@ -31,9 +32,13 @@ namespace WebBrowser
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string autoUpdateStr = ConfigurationManager.AppSettings["autoUpdate"];
+            CaseIDManager cid = new CaseIDManager();
+            ConfigManager cm = new ConfigManager();
 
-            if(autoUpdateStr == "true")
+            bool autoUpdate = cm.GetConfigFile().autoUpdateProgram;
+            autoUpdate = false;
+
+            if (autoUpdate)
             {
                 ClearOldFiles();
 
@@ -66,8 +71,7 @@ namespace WebBrowser
             {
                 Path.Combine(exeDirectory, "CSGORollDailyCollector-old.exe"),
                 Path.Combine(exeDirectory, "CSGORollDailyCollector.exe-old.config"),
-                Path.Combine(exeDirectory, "How to setup multiple accounts-old.txt"),
-                Path.Combine(exeDirectory, "How to setup proxy-old.txt"),
+                Path.Combine(exeDirectory, "How to.txt"),
                 Path.Combine(exeDirectory, "If you move this program, you need to rerun it!-old.txt")
             };
 

@@ -170,17 +170,16 @@
             this.webView21.TabIndex = 0;
             this.webView21.TabStop = false;
             this.webView21.ZoomFactor = 1D;
-            this.webView21.NavigationStarting += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs>(this.webView21_NavigationStarting);
             this.webView21.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webView21_NavigationCompleted);
-            this.webView21.Click += new System.EventHandler(this.webView21_Click);
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(3, 3);
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox1.Size = new System.Drawing.Size(1140, 67);
+            this.richTextBox1.Size = new System.Drawing.Size(1163, 73);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
