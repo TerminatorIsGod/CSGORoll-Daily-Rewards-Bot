@@ -15,7 +15,7 @@ const strategyVar = ""{args["strategy"]}"";
 const numberOfPlayersVar = {int.Parse(args["playercount"])};
 const pvpmode = ""{args["mode"]}"";
 const numberOfTeamsVar = {int.Parse(args["teamcount"])};
-const numberOFPlayersInTeam = {int.Parse(args["teamplayerscount"])};
+const numberOFPlayersInTeamVar = {int.Parse(args["teamplayerscount"])};
 
 async function createPvpGame() {{
   const body = {{
@@ -34,7 +34,7 @@ async function createPvpGame() {{
         enableEarlyCashout: false,
         mode: pvpmode,
         numberOfPlayers: numberOfPlayersVar,
-        numberOfPlayersInTeam: 
+        numberOfPlayersInTeam: numberOFPlayersInTeamVar,
         multiplierMode: ""PVP"",
         numberOfTeams: numberOfTeamsVar,
         autoJoinBots: true,
@@ -56,6 +56,7 @@ async function createPvpGame() {{
   }};
 
   try {{
+    console.log(""fetching..."");
     const res = await fetch(""https://api.csgoroll.com/graphql"", {{
       method: ""POST"",
       headers: {{
@@ -64,6 +65,8 @@ async function createPvpGame() {{
       credentials: ""include"",
       body: JSON.stringify(body),
     }});
+
+    console.log(""fetching... 2"");
 
     const data = await res.json();
     console.log(""Battle created: "", data);

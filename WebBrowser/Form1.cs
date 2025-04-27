@@ -702,23 +702,37 @@ namespace WebBrowser
 
                     pvpbattleAttemps++;
 
+                    printToConsole($"Executing pvp battle... 1");
+
                     _signalPvpBattle = new TaskCompletionSource<PvpbattleCreated>();
                     AddTaskTimeout(7f, _signalPvpBattle);
 
-                    await webView21.ExecuteScriptAsync(new createPvPGame().GetJavaScript(new Dictionary<string, string> { 
+                    printToConsole($"Executing pvp battle... 2");
+
+                    string script = new createPvPGame().GetJavaScript(new Dictionary<string, string>
+                    {
                         ["boxes"] = boxesJson,
                         ["strategy"] = ConfigManager._Instance.GetConfigFile().pvpStrategy,
                         ["mode"] = ConfigManager._Instance.GetConfigFile().pvpMode,
                         ["playercount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayers.ToString(),
                         ["teamcount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfTeams.ToString(),
                         ["teamplayerscount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayersOnTeam.ToString()
-                    }));
+                    });
+
+                    printToConsole(script);
+
+                    await webView21.ExecuteScriptAsync(script);
+
+                    printToConsole($"Executing pvp battle... 3");
 
                     await _signalPvpBattle.Task;
 
+                    printToConsole($"Executing pvp battle... 4");
+
                     if (_signalPvpBattle.Task.IsCompleted)
                     {
-                        if(_signalPvpBattle.Task.Result != null)
+                        printToConsole($"Executing pvp battle... 5");
+                        if (_signalPvpBattle.Task.Result != null)
                         {
                             PvpbattleCreated pbc = _signalPvpBattle.Task.Result;
                             if (pbc.createPvpGame == null)
@@ -728,7 +742,9 @@ namespace WebBrowser
                             {
                                 printToConsole($"Successfully created pvp battle");
                             }
-  
+
+                            printToConsole($"Executing pvp battle... 6");
+
                             CaseIDManager._Instance.caseIdsToPvpBattle.Clear();
                         } else
                         {
