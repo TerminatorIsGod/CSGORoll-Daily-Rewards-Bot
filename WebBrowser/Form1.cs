@@ -651,7 +651,7 @@ namespace WebBrowser
 
                 printToConsole($"Page is loaded");
 
-                await DelayAsyncSec(3f);
+                await DelayAsyncSec(7f);
 
                 printToConsole($"Getting user data");
 
@@ -738,6 +738,13 @@ namespace WebBrowser
                             if (pbc.createPvpGame == null)
                             {
                                 printToConsole($"Failed creating pvp battle, one of the cases was already unboxed!");
+                                if (pvpbattleAttemps <= 3)
+                                {
+                                    printToConsole($"Retrying...");
+                                    if (ReloadThePage())
+                                        return;
+                                }
+                                printToConsole($"Failed creating pvp battle too many times");
                             } else
                             {
                                 printToConsole($"Successfully created pvp battle");
