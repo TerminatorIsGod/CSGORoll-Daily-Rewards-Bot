@@ -98,6 +98,9 @@ namespace WebBrowser.Config
         public string infoStringPvpNumOfTeams5 { get; set; } = "if 4 number of players can only be 4";
         public int pvpNumOfTeams { get; set; } = 2;
 
+        public string infoStringPvpNumOfPlayersOnTeam { get; set; } = "Number of players per team";
+        public int pvpNumOfPlayersOnTeam { get; set; } = 2;
+
         public string infoStringPvpMode { get; set; } = "Options: 'TEAM' or 'SINGLE'";
         public string pvpMode { get; set; } = "TEAM";
 

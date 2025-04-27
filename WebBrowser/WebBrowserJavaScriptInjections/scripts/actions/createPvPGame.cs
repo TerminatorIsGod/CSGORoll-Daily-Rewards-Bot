@@ -15,6 +15,7 @@ const strategyVar = ""{args["strategy"]}"";
 const numberOfPlayersVar = {int.Parse(args["playercount"])};
 const pvpmode = ""{args["mode"]}"";
 const numberOfTeamsVar = {int.Parse(args["teamcount"])};
+const numberOFPlayersInTeam = {int.Parse(args["teamplayerscount"])};
 
 async function createPvpGame() {{
   const body = {{
@@ -33,9 +34,11 @@ async function createPvpGame() {{
         enableEarlyCashout: false,
         mode: pvpmode,
         numberOfPlayers: numberOfPlayersVar,
+        numberOfPlayersInTeam: 
         multiplierMode: ""PVP"",
         numberOfTeams: numberOfTeamsVar,
-        autoJoinBots: true
+        autoJoinBots: true,
+        teamSelection: 0
       }}
     }},
     query: `

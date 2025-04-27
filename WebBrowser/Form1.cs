@@ -20,6 +20,7 @@ using WebBrowser.WebBrowserJavaScriptInjections.scripts.steam;
 using WebBrowser.WebBrowserJavaScriptInjections.scripts.actions;
 using System.Text;
 using System.Security.Cryptography;
+using System.Security.Principal;
 
 
 namespace WebBrowser
@@ -431,6 +432,21 @@ namespace WebBrowser
                 {
                     //Clear previous daily trigger so it can trigger in the same day
                     TaskDefinition taskDef = task.Definition;
+
+                    if (!taskDef.Settings.StartWhenAvailable)
+                    {
+                        taskDef.Settings.StartWhenAvailable = true;
+                    }
+
+                    if(taskDef.Principal.RunLevel != TaskRunLevel.Highest)
+                    {
+                        if (IsRunningWithElevatedPrivileges())
+                        {
+                            taskDef.Principal.RunLevel = TaskRunLevel.Highest;
+                        }
+                    }
+
+
                     taskDef.Triggers.Clear();
 
                     DailyTrigger dailyTrigger = new DailyTrigger();
@@ -473,10 +489,22 @@ namespace WebBrowser
             TaskDefinition taskDef = ts.NewTask();
             taskDef.RegistrationInfo.Description = "CSGORoll Daily Collector.";
 
+            taskDef.Principal.UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+            taskDef.Principal.LogonType = TaskLogonType.InteractiveToken;
+            taskDef.Principal.RunLevel = TaskRunLevel.Highest;
+
             DailyTrigger dailyTrigger = new DailyTrigger();
+            taskDef.Settings.StartWhenAvailable = true;
             taskDef.Settings.WakeToRun = true;
             taskDef.Settings.DisallowStartIfOnBatteries = false;
             taskDef.Settings.RunOnlyIfIdle = false;
+
+            if (IsRunningWithElevatedPrivileges())
+            {
+                // Set the task to run with elevated privileges
+                taskDef.Principal.RunLevel = TaskRunLevel.Highest;
+            }
+
             dailyTrigger.DaysInterval = 1;
             DateTime tt = DateTime.Today + timeSpan;
 
@@ -496,20 +524,18 @@ namespace WebBrowser
             }
 
             taskDef.Triggers.Add(dailyTrigger);
-
-            // If timespan is greater than 13 hours, schedule an additional trigger for 12 hours
-            /*if (timeSpanToAdd.TotalHours > 13)
-            {
-                TimeSpan twelveHours = new TimeSpan(12, 2, 0);
-                DailyTrigger additionalTrigger = new DailyTrigger();
-                additionalTrigger.DaysInterval = 1;
-                additionalTrigger.StartBoundary = DateTime.Now.Add(twelveHours);
-                taskDef.Triggers.Add(additionalTrigger);
-            }*/
-
             taskDef.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location));
 
             ts.RootFolder.RegisterTaskDefinition(taskName, taskDef);
+        }
+
+        private bool IsRunningWithElevatedPrivileges()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+
+            // Check if the current process is running as an administrator (elevated)
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         TaskCompletionSource<bool> _signalLoadStatus = null;
@@ -684,7 +710,8 @@ namespace WebBrowser
                         ["strategy"] = ConfigManager._Instance.GetConfigFile().pvpStrategy,
                         ["mode"] = ConfigManager._Instance.GetConfigFile().pvpMode,
                         ["playercount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayers.ToString(),
-                        ["teamcount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfTeams.ToString()
+                        ["teamcount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfTeams.ToString(),
+                        ["teamplayerscount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayersOnTeam.ToString()
                     }));
 
                     await _signalPvpBattle.Task;
