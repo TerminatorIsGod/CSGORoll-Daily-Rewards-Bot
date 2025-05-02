@@ -9,6 +9,7 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.deserialization
     class CaseOpened
     {
         public caseOpenedData data { get; set; }
+        public List<GraphQLError> errors { get; set; }
     }
 
     public class caseOpenedData
@@ -58,5 +59,24 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.deserialization
     public class caseOpenedRoll
     {
         public int value { get; set; }
+    }
+
+    public class GraphQLError
+    {
+        public string message { get; set; }
+        public List<GraphQLErrorLocation> locations { get; set; }
+        public List<string> path { get; set; }
+        public GraphQLErrorExtensions extensions { get; set; }
+    }
+
+    public class GraphQLErrorLocation
+    {
+        public int line { get; set; }
+        public int column { get; set; }
+    }
+
+    public class GraphQLErrorExtensions
+    {
+        public string code { get; set; }
     }
 }

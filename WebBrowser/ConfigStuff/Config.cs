@@ -11,6 +11,9 @@ namespace WebBrowser.Config
         public string taskSchedulerTaskName { get; set; } = "CSGORoll Daily Collector";
         public bool autoUpdateProgram { get; set; } = true;
 
+        public string keepRetryingAfterFailInfo { get; set; } = "If true the program will stay open till all the cases are opened, otherwise it will try again in 1hr";
+        public bool keepRetryingAfterFail { get; set; } = false;
+
         public string proxyAddress { get; set; } = "";
         public string proxyTypeInfo { get; set; } = "Proxy type options: 'http' or 'https'";
         public string proxyType { get; set; } = "";

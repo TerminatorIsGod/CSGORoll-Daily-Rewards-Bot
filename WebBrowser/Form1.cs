@@ -412,6 +412,16 @@ namespace WebBrowser
 
         private void UpdateTaskTime()
         {
+            if (retryInHour)
+            {
+                TimeSpan currentTime = DateTime.Now.TimeOfDay;
+                TimeSpan oneHour = TimeSpan.FromHours(1);
+                TimeSpan timePlusOneHour = currentTime.Add(oneHour);
+
+                updateTaskSchedularTaskConfig(timePlusOneHour, false);
+                return;
+            }
+
             if(ConfigManager._Instance.GetConfigFile().triggerTime != new TimeSpan())
             {
                 updateTaskSchedularTaskConfig(ConfigManager._Instance.GetConfigFile().triggerTime, false);
@@ -782,8 +792,13 @@ namespace WebBrowser
                     _signalBoxOpened = new TaskCompletionSource<CaseOpened>();
                     AddTaskTimeout(5f, _signalBoxOpened);
                     printToConsole($"Sending script");
-                    await webView21.ExecuteScriptAsync(new openCaseFull().GetJavaScript(new Dictionary<string, string> { ["boxId"] = bid }));
+                    string script1 = new openCaseFull().GetJavaScript(new Dictionary<string, string> { ["boxId"] = bid });
+
+                    await webView21.ExecuteScriptAsync(script1);
+
                     printToConsole($"Script sent, waiting for reply...");
+
+                    printToConsole(script1);
 
                     await _signalBoxOpened.Task;
 
@@ -806,10 +821,36 @@ namespace WebBrowser
                                     continue;
                                 } else
                                 {
-                                    printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
-                                    CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                    await DelayAsyncSec(1f);
-                                    continue;
+                                    if(co.errors != null && co.errors.Count > 0)
+                                    {
+                                        //Ran into an error
+                                        printToConsole($"CSGORoll Error: {co.errors[0].message}");
+
+                                        if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
+                                        {
+                                            printToConsole($"CSGORoll Error: Box in use");
+                                        }
+                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
+                                        {
+                                            printToConsole($"CSGORoll Error: Balance on slot has changed");
+                                        }
+                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
+                                        {
+                                            printToConsole($"CSGORoll Error: GEO Block");
+                                        }
+                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
+                                        {
+                                            printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
+                                            CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                            await DelayAsyncSec(1f);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            printToConsole($"CSGORoll Error: Unhandled Error!");
+                                        }
+
+                                    }
                                 }
                             }
                             
@@ -983,11 +1024,14 @@ namespace WebBrowser
 
         private int timesReloadedPage = 0;
 
+        private bool retryInHour = false;
+
         private bool ReloadThePage()
         {
-            if(timesReloadedPage > 15)
+            if(timesReloadedPage > 15 && !ConfigManager._Instance.GetConfigFile().keepRetryingAfterFail)
             {
-                printToConsole("Reloaded the page too many times! Trying to continue to execute the rest...");
+                printToConsole("Reloaded the page too many times! Trying to continue to execute the rest and attempt again in 1 hour...");
+                retryInHour = true;
                 return false;
             }
 
