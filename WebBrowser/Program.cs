@@ -19,7 +19,7 @@ namespace WebBrowser
     {
         private static readonly string RepoOwner = "TerminatorIsGod";
         private static readonly string RepoName = "CSGORoll-Daily-Rewards-Bot";
-        private static readonly string CurrentVersion = "Release_v2.0.4";
+        private static readonly string CurrentVersion = "Release_v2.0.3";
         private static string newestVersion = "";
 
         /// <summary>
@@ -72,7 +72,8 @@ namespace WebBrowser
                 Path.Combine(exeDirectory, "CSGORollDailyCollector-old.exe"),
                 Path.Combine(exeDirectory, "CSGORollDailyCollector.exe-old.config"),
                 Path.Combine(exeDirectory, "How to.txt"),
-                Path.Combine(exeDirectory, "If you move this program, you need to rerun it!-old.txt")
+                Path.Combine(exeDirectory, "If you move this program, you need to rerun it!-old.txt"),
+                Path.Combine(exeDirectory, "readme-old.txt"),
             };
 
             foreach(string str in directories)
@@ -131,6 +132,7 @@ namespace WebBrowser
                 { Path.Combine(exeDirectory, "CSGORollDailyCollector.exe.config"), Path.Combine(exeDirectory, "CSGORollDailyCollector.exe-old.config") },
                 { Path.Combine(exeDirectory, "How to setup multiple accounts.txt"), Path.Combine(exeDirectory, "How to setup multiple accounts-old.txt") },
                 { Path.Combine(exeDirectory, "How to setup proxy.txt"), Path.Combine(exeDirectory, "How to setup proxy-old.txt") },
+                { Path.Combine(exeDirectory, "readme.txt"), Path.Combine(exeDirectory, "readme-old.txt") },
                 { Path.Combine(exeDirectory, "If you move this program, you need to rerun it!.txt"), Path.Combine(exeDirectory, "If you move this program, you need to rerun it!-old.txt") }
             };
 
@@ -176,7 +178,33 @@ namespace WebBrowser
             }
 
             Console.WriteLine("Extracting new version...");
-            ZipFile.ExtractToDirectory(tempFilePath, exeDirectory);
+            //ZipFile.ExtractToDirectory(tempFilePath, exeDirectory);
+
+            using (ZipArchive archive = ZipFile.OpenRead(tempFilePath))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    string destinationPath = Path.Combine(exeDirectory, entry.FullName);
+
+                    string directoryPath = Path.GetDirectoryName(destinationPath);
+                    if (directoryPath != null)
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    // Skip directory entries
+                    if (string.IsNullOrEmpty(entry.Name))
+                        continue;
+
+                    // Delete file if it already exists
+                    if (File.Exists(destinationPath))
+                    {
+                        File.Delete(destinationPath);
+                    }
+
+                    entry.ExtractToFile(destinationPath);
+                }
+            }
 
             //Console.WriteLine("Starting new version and closing the current instance...");
             Process.Start(Path.Combine(exeDirectory, "CSGORollDailyCollector.exe"));
