@@ -263,8 +263,49 @@ namespace WebBrowser
 
             var environment = await CoreWebView2Environment.CreateAsync(null, null, options);
 
+            webView21.CoreWebView2InitializationCompleted += async (sender, e) =>
+            {
+                if (e.IsSuccess)
+                {
+                    printToConsole("Clearing cookies for csgoroll...");
+                    // Clear only cookies for csgoroll.com
+                    /*var cookieManager = webView21.CoreWebView2.CookieManager;
+                    var cookies = await cookieManager.GetCookiesAsync("https://csgoroll.com");
+
+                    foreach (var cookie in cookies)
+                    {
+                        cookieManager.DeleteCookie(cookie);
+                        printToConsole("Deleted a cookie...");
+                    }*/
+
+                    var cookieManager = webView21.CoreWebView2.CookieManager;
+                    var allCookies = await cookieManager.GetCookiesAsync(null); // Get all cookies
+
+                    foreach (var cookie in allCookies)
+                    {
+                        if (cookie.Domain.Contains("csgoroll"))
+                        {
+                            cookieManager.DeleteCookie(cookie);
+                            printToConsole($"Deleted cookie: {cookie.Name} from {cookie.Domain}");
+                        }
+                    }
+
+                    printToConsole("Finished clearing cookies.");
+
+                    printToConsole("Clearing cache...");
+
+                    // also clear cache
+                    await webView21.CoreWebView2.Profile.ClearBrowsingDataAsync(
+                        CoreWebView2BrowsingDataKinds.DiskCache
+                    );
+
+                    printToConsole("Finished clearing cache.");
+                }
+            };
+
             await webView21.EnsureCoreWebView2Async(environment);
             webView21.CoreWebView2.WebMessageReceived += messagedReceived;
+            
 
             // Set up proxy authentication if credentials are provided
             if (!string.IsNullOrEmpty(proxyConfig.Username) && !string.IsNullOrEmpty(proxyConfig.Password))
