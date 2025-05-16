@@ -27,12 +27,34 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.scripts.actions
 
             return $@"window.boxId = ""{args["boxId"]}"";
 
+async function delay(time) {{
+  return new Promise(resolve => setTimeout(resolve, time));
+}}
+
 async function fetchBoxSlots(boxId) {{
   try {{
     const res = await fetch(""https://api.csgoroll.com/graphql"", {{
       method: ""POST"",
+      credentials: ""include"",
       headers: {{
         ""Content-Type"": ""application/json"",
+        ""accept"": ""application/json, text/plain, */*"",
+        ""accept-encoding"": ""gzip, deflate, br, zstd"",
+        ""accept-language"": ""en-US,en;q=0.9"",
+        ""apollographql-client-id"": ""www-csgoroll-0"",
+        ""apollographql-client-name"": ""www-csgoroll"",
+        ""apollographql-client-version"": ""v241"",
+        ""x-apollo-operation-name"": ""BoxSlots"",
+        ""User-Agent"": navigator.userAgent,
+        ""Referer"": ""https://www.csgoroll.com/"",
+        ""Origin"": ""https://www.csgoroll.com"",
+        ""sec-ch-ua"": `""Not A(Brand"";v=""8"", ""Chromium"";v=""132"", ""Opera"";v=""117""`,
+        ""sec-ch-ua-mobile"": ""?0"",
+        ""sec-ch-ua-platform"": `""Windows""`,
+        ""sec-fetch-dest"": ""empty"",
+        ""sec-fetch-mode"": ""cors"",
+        ""sec-fetch-site"": ""same-site"",
+        ""ngsw-bypass"": ""true"",
       }},
       body: JSON.stringify({{
         query: `
@@ -53,6 +75,12 @@ async function fetchBoxSlots(boxId) {{
     }});
 
     const json = await res.json();
+
+    if (!json || json.errors || !json.data || !json.data.box) {{
+      console.error(""Invalid response:"", json);
+      throw new Error(""Failed to fetch valid box data."");
+    }}
+
     const slots = json.data.box.slots;
 
     const providedBoxMultiplierSlots = slots.map((slot) => ({{
@@ -147,7 +175,9 @@ async function openBox(boxId, slots) {{
 async function openCase(boxId) {{
   console.log(""openCase"");
   const slots = await fetchBoxSlots(boxId);
+  delay(1000);
   console.log(""fetchboxslots done"");
+  console.log(slots);
   await openBox(boxId, slots);
   console.log(""openBox done"");
 }}

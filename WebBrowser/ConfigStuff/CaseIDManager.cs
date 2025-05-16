@@ -178,6 +178,22 @@ namespace WebBrowser.Config
             }
         }
 
+        public (string levelKey, string percentKey)? GetBoxKeysFromValue(string targetValue)
+        {
+            foreach (var outerPair in allBoxIds)
+            {
+                foreach (var innerPair in outerPair.Value)
+                {
+                    if (innerPair.Value == targetValue)
+                    {
+                        return (outerPair.Key, innerPair.Key); // Return both keys
+                    }
+                }
+            }
+
+            return null; // Not found
+        }
+
         public void GotPlayerLevel(int level)
         {
             //determine what cases to do

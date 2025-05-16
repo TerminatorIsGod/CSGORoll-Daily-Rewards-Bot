@@ -702,7 +702,7 @@ namespace WebBrowser
 
                 printToConsole($"Page is loaded");
 
-                await DelayAsyncSec(7f);
+                await DelayAsyncSec(1f);
 
                 printToConsole($"Getting user data");
 
@@ -731,7 +731,7 @@ namespace WebBrowser
                 CaseIDManager._Instance.GotPlayerLevel(userData.level);
                 ConfigManager._Instance.SetScheduleTime(userData.dailyFreeTimeSlot);
 
-                await DelayAsyncSec(6f);
+                await DelayAsyncSec(1f);
 
                 List<string> cidpvp = CaseIDManager._Instance.caseIdsToPvpBattle;
 
@@ -858,7 +858,9 @@ namespace WebBrowser
                                     printToConsole($"Successfully opened box: {bid} - {co.data.openBox}");
                                     CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
                                     CaseIDManager._Instance.openedCasesResults.Add(co);
-                                    await DelayAsyncSec(1f);
+                                    await DelayAsyncSec(5f);
+                                    //if (ReloadThePage(false)) //try refresh data
+                                    //    return;
                                     continue;
                                 } else
                                 {
@@ -883,7 +885,9 @@ namespace WebBrowser
                                         {
                                             printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
                                             CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                            await DelayAsyncSec(1f);
+                                            await DelayAsyncSec(5f);
+                                            //if (ReloadThePage(false)) //try refresh data
+                                            //    return;
                                             continue;
                                         }
                                         else
@@ -901,11 +905,11 @@ namespace WebBrowser
 
                     //failed
                     printToConsole($"Failed to open box: {bid}");
-                    await DelayAsyncSec(1f);
+                    await DelayAsyncSec(5f);
                 }
 
                 printToConsole($"Inital case opening finished...");
-                await DelayAsyncSec(1f);
+                await DelayAsyncSec(5f);
 
                 if (CaseIDManager._Instance.caseIdsToOpen.Count > 0)
                 {
@@ -1067,7 +1071,7 @@ namespace WebBrowser
 
         private bool retryInHour = false;
 
-        private bool ReloadThePage()
+        private bool ReloadThePage(bool increaseTimer = true)
         {
             if(timesReloadedPage > 15 && !ConfigManager._Instance.GetConfigFile().keepRetryingAfterFail)
             {
@@ -1076,7 +1080,9 @@ namespace WebBrowser
                 return false;
             }
 
-            timesReloadedPage++;
+            if(increaseTimer)
+                timesReloadedPage++;
+
             webView21.Reload();
             return true;
         }
