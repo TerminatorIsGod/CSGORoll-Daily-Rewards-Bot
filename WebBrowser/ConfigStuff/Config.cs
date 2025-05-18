@@ -113,6 +113,7 @@ namespace WebBrowser.Config
         public bool enableDiscordWebhook { get; set; } = false;
         public string discordWebhookURL { get; set; } = "be careful people can brute force discord webhooks and spam messages";
         public string identifier { get; set; } = "for special hosting feature that can be found in the discord server";
+        public bool enableLocalBotComm { get; set; } = false;
         public int commport { get; set; } = 0;
         public string configVersion { get; set; } = "2.0.0";
     }

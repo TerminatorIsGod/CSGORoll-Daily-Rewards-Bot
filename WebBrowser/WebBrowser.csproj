@@ -268,6 +268,7 @@
     <Compile Include="ConfigStuff\CaseIDManager.cs" />
     <Compile Include="ConfigStuff\Config.cs" />
     <Compile Include="ConfigStuff\ConfigManager.cs" />
+    <Compile Include="Networking\CommManager.cs" />
     <Compile Include="WebBrowserCommands\commands\cancelQuitCommand.cs" />
     <Compile Include="WebBrowserCommands\commands\clearLogFileCommand.cs" />
     <Compile Include="WebBrowserCommands\commands\goToCommand.cs" />

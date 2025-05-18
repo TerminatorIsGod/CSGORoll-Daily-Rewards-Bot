@@ -595,6 +595,7 @@ namespace WebBrowser
         TaskCompletionSource<Exchange> _signalSellInventory = null;
         TaskCompletionSource<PromoCodeSet> _signalPromoCode = null;
         TaskCompletionSource<PvpbattleCreated> _signalPvpBattle = null;
+        TaskCompletionSource<bool> _signalSteamLoggedIn = null;
 
         private void messagedReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
@@ -651,6 +652,10 @@ namespace WebBrowser
                         printToConsole($"PvpbattleCreatedError: {message.payload}");
                         _signalPvpBattle.TrySetResult(null);
                         break;
+                    case "SteamSignedIn":
+                        printToConsole($"Received: Logged into steam");
+                        _signalSteamLoggedIn.TrySetResult(true);
+                        break;
                     default:
                         printToConsole($"Received invalid message! {message}");
                         break;
@@ -676,7 +681,24 @@ namespace WebBrowser
                 if (sourceString.Contains("login?")){
                     //Already logged into steam
                     printToConsole($"Already logged into steam... pressing login button");
+
+                    _signalSteamLoggedIn = new TaskCompletionSource<bool>();
+                    AddTaskTimeout(15f, _signalSteamLoggedIn);
+
                     await webView21.ExecuteScriptAsync(new pressSignInButton().GetJavaScript());
+
+                    await _signalSteamLoggedIn.Task;
+
+                    if (_signalSteamLoggedIn.Task.IsCanceled)
+                    {
+                        printToConsole("Failed to login into steam!");
+                        ReloadThePage(false);
+                    } else
+                    {
+                        printToConsole("Successfully logged into steam");
+                    }
+
+                    
                 } else if (sourceString.Contains("loginform"))
                 {
                     printToConsole("User not logged into steam!");

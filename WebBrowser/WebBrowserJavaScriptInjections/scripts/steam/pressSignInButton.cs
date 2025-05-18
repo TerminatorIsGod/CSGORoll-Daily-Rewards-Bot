@@ -13,10 +13,18 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.scripts.steam
             return @"if (document.readyState === 'complete') {
   // Page is already fully loaded
   document.getElementById('imageLogin').click();
+  window.chrome.webview.postMessage({
+    type: ""SteamSignedIn"",
+    payload: ""{}"",
+  });
 } else {
   // Wait for the load event
   window.addEventListener('load', function() {
     document.getElementById('imageLogin').click();
+    window.chrome.webview.postMessage({
+    type: ""SteamSignedIn"",
+    payload: ""{}"",
+  });
 });
 }
 ";
