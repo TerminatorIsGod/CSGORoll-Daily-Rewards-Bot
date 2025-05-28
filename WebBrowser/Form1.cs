@@ -21,6 +21,7 @@ using WebBrowser.WebBrowserJavaScriptInjections.scripts.actions;
 using System.Text;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using WebBrowser.Networking;
 
 
 namespace WebBrowser
@@ -86,6 +87,9 @@ namespace WebBrowser
             initalizeAsync(proxyServer);
 
             taskName = ConfigManager._Instance.GetConfigFile().taskSchedulerTaskName;
+
+            //setup CommManager
+            new CommManager();
 
             //Register Commands
             insertWebBrowserCommand("autoQuit", new cancelQuitCommand());
@@ -671,6 +675,12 @@ namespace WebBrowser
 
         private async void webView21_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
+            if (!e.IsSuccess)
+            {
+                printToConsole($"Failed to navigate to {webView21.Source.ToString()}");
+                ReloadThePage(false);
+            }
+
             setURLTextbox(webView21.Source.ToString());
             printToConsole( $"Navigated to: {webView21.Source.ToString()}");
             string sourceString = webView21.Source.ToString();

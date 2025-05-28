@@ -19,7 +19,7 @@ namespace WebBrowser
     {
         private static readonly string RepoOwner = "TerminatorIsGod";
         private static readonly string RepoName = "CSGORoll-Daily-Rewards-Bot";
-        private static readonly string CurrentVersion = "Release_v2.0.7";
+        private static readonly string CurrentVersion = "Release_v2.0.8";
         private static string newestVersion = "";
 
         /// <summary>

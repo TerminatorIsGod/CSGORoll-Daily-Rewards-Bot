@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -48,8 +49,14 @@ namespace WebBrowser.Networking
 
             stream = tcpClient.GetStream();
 
+            int procid = Process.GetCurrentProcess().Id;
+
             // Send initial handshake
-            var handshake = new { clientId = clientID };
+            var handshake = new { 
+                clientId = clientID, 
+                pid = procid 
+            };
+
             await SendJsonAsync(handshake);
 
             // Enter main loop to receive and respond
@@ -77,7 +84,28 @@ namespace WebBrowser.Networking
                 {
                     var json = JsonSerializer.Deserialize<JsonElement>(message);
 
-                    if (json.TryGetProperty("msg", out var msgProp))
+                    if (json.TryGetProperty("command", out JsonElement cmd))
+                    {
+                        string cmdstr = cmd.ToString();
+                        switch (cmdstr)
+                        {
+                            case "loginSteamDetails":
+                                break;
+                            case "enterSteamGuard":
+                                break;
+                            case "requestQRCode":
+                                break;
+                            case "clearCookies":
+                                break;
+                            case "quit":
+                                break;
+                        }
+                    } 
+                    else if (json.TryGetProperty("error", out var errorMsg))
+                    {
+                        Form1._instance.printToConsole($"Received error message from bot: {errorMsg}");
+                    }
+                    else if (json.TryGetProperty("msg", out var msgProp))
                     {
                         string receivedMsg = msgProp.GetString();
                         Console.WriteLine($"Message from bot: {receivedMsg}");
@@ -85,6 +113,9 @@ namespace WebBrowser.Networking
                         // Respond with a message
                         var response = new { msg = $"Reply from {clientID}: Got your message: '{receivedMsg}'" };
                         await SendJsonAsync(response);
+                    } else
+                    {
+                        Form1._instance.printToConsole($"Received unknown message from bot: {message}");
                     }
                 }
                 catch (JsonException)
