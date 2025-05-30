@@ -677,8 +677,38 @@ namespace WebBrowser
         {
             if (!e.IsSuccess)
             {
-                printToConsole($"Failed to navigate to {webView21.Source.ToString()}");
-                ReloadThePage(false);
+                printToConsole($"Navigation failed. Error: {e.WebErrorStatus}");
+
+                switch (e.WebErrorStatus)
+                {
+                    case CoreWebView2WebErrorStatus.UnexpectedError:
+                        printToConsole("Unexpected error while navigating.");
+                        ReloadThePage(false);
+                        break;
+                    case CoreWebView2WebErrorStatus.HostNameNotResolved:
+                        printToConsole("Provided host name was not able to be resolved.");
+                        ReloadThePage(false);
+                        break;
+                    case CoreWebView2WebErrorStatus.CannotConnect:
+                        printToConsole("A connection to the destination was not established.");
+                        ReloadThePage(false);
+                        break;
+                    case CoreWebView2WebErrorStatus.Disconnected:
+                        printToConsole("Internet connection has been lost.");
+                        ReloadThePage(false);
+                        break;
+                    case CoreWebView2WebErrorStatus.Timeout:
+                        printToConsole("The connection has timed out.");
+                        ReloadThePage(false);
+                        break;
+                    case CoreWebView2WebErrorStatus.ServerUnreachable:
+                        printToConsole("The host is unreachable.");
+                        ReloadThePage(false);
+                        break;
+                    default:
+                        printToConsole($"Unhandled navigation error: {e.WebErrorStatus}");
+                        break;
+                }
             }
 
             setURLTextbox(webView21.Source.ToString());
