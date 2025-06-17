@@ -742,6 +742,10 @@ namespace WebBrowser
                 } else if (sourceString.Contains("loginform"))
                 {
                     printToConsole("User not logged into steam!");
+                    // Notify discord bot
+                    //CommManager._Instance
+
+                    // Add a source check or something for steam guard
                 }
 
             } else if (sourceString.Contains("csgoroll"))

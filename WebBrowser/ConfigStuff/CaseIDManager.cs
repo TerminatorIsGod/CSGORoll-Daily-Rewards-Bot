@@ -21,113 +21,113 @@ namespace WebBrowser.Config
         {
             ["2"] = new Dictionary<string, string> //Level 2
             {
-                ["5"] = "Qm94OjI1MDMz", //5%
-                ["10"] = "Qm94OjI1MDQ0", //10%
-                ["20"] = "Qm94OjI1MDU1", //20%
-                ["25"] = "Qm94OjI1MDY2", //25%
-                ["40"] = "Qm94OjI1MDc3", //40%
-                ["50"] = "Qm94OjI1MDg4", //50%
-                ["60"] = "Qm94OjI1MDk5", //60%
+                ["5"] = "Qm94OjUxMTQ1NQ",//"Qm94OjI1MDMz", //5%
+                ["10"] = "Qm94OjUxMTQ2Ng", //"Qm94OjI1MDQ0", //10%
+                ["20"] = "Qm94OjUxMTQ3Nw", //"Qm94OjI1MDU1", //20%
+                ["25"] = "Qm94OjUxMTQ4OA", // "Qm94OjI1MDY2", //25%
+                ["40"] = "Qm94OjUxMTQ5OQ", //"Qm94OjI1MDc3", //40%
+                ["50"] = "Qm94OjUxMTUxMA",//"Qm94OjI1MDg4", //50%
+                ["60"] = "Qm94OjUxMTUyMQ", //"Qm94OjI1MDk5", //60%
             },
             ["10"] = new Dictionary<string, string> //Level 10
             {
-                ["5"] = "Qm94OjI1MDM0", //5%
-                ["10"] = "Qm94OjI1MDQ1", //10%
-                ["20"] = "Qm94OjI1MDU2", //20%
-                ["25"] = "Qm94OjI1MDY3", //25%
-                ["40"] = "Qm94OjI1MDc4", //40%
-                ["50"] = "Qm94OjI1MDg5", //50%
-                ["60"] = "Qm94OjI1MTAw", //60%
+                ["5"] = "Qm94OjUxMTQ1Ng",//"Qm94OjI1MDM0", //5%
+                ["10"] = "Qm94OjUxMTQ2Nw",//"Qm94OjI1MDQ1", //10%
+                ["20"] = "Qm94OjUxMTQ3OA", //"Qm94OjI1MDU2", //20%
+                ["25"] = "Qm94OjUxMTQ4OQ",//"Qm94OjI1MDY3", //25%
+                ["40"] = "Qm94OjUxMTUwMA",//"Qm94OjI1MDc4", //40%
+                ["50"] = "Qm94OjUxMTUxMQ",//"Qm94OjI1MDg5", //50%
+                ["60"] = "Qm94OjUxMTUyMg",//"Qm94OjI1MTAw", //60%
             },
             ["20"] = new Dictionary<string, string> //Level 20
             {
-                ["5"] = "Qm94OjI1MDM1", //5%
-                ["10"] = "Qm94OjI1MDQ2", //10%
-                ["20"] = "Qm94OjI1MDU3", //20%
-                ["25"] = "Qm94OjI1MDY4", //25%
-                ["40"] = "Qm94OjI1MDc5", //40%
-                ["50"] = "Qm94OjI1MDkw", //50%
-                ["60"] = "Qm94OjI1MTAx", //60%
+                ["5"] = "Qm94OjUxMTQ1Nw",//"Qm94OjI1MDM1", //5%
+                ["10"] = "Qm94OjUxMTQ2OA", //10%
+                ["20"] = "Qm94OjUxMTQ3OQ", //20%
+                ["25"] = "Qm94OjUxMTQ5MA", //25%
+                ["40"] = "Qm94OjUxMTUwMQ", //40%
+                ["50"] = "Qm94OjUxMTUxMg", //50%
+                ["60"] = "Qm94OjUxMTUyMw", //60%
             },
             ["30"] = new Dictionary<string, string> //Level 30
             {
-                ["5"] = "Qm94OjI1MDM2", //5%
-                ["10"] = "Qm94OjI1MDQ3", //10%
-                ["20"] = "Qm94OjI1MDU4", //20%
-                ["25"] = "Qm94OjI1MDY5", //25%
-                ["40"] = "Qm94OjI1MDgw", //40%
-                ["50"] = "Qm94OjI1MDkx", //50%
-                ["60"] = "Qm94OjI1MTAy", //60%
+                ["5"] = "Qm94OjUxMTQ1OA",//"Qm94OjI1MDM2", //5%
+                ["10"] = "Qm94OjUxMTQ2OQ", //10%
+                ["20"] = "Qm94OjUxMTQ4MA", //20%
+                ["25"] = "Qm94OjUxMTQ5MQ", //25%
+                ["40"] = "Qm94OjUxMTUwMg", //40%
+                ["50"] = "Qm94OjUxMTUxMw", //50%
+                ["60"] = "Qm94OjUxMTUyNA", //60%
             },
             ["40"] = new Dictionary<string, string> //Level 40
             {
-                ["5"] = "Qm94OjI1MDM3", //5%
-                ["10"] = "Qm94OjI1MDQ4", //10%
-                ["20"] = "Qm94OjI1MDU5", //20%
-                ["25"] = "Qm94OjI1MDcw", //25%
-                ["40"] = "Qm94OjI1MDgx", //40%
-                ["50"] = "Qm94OjI1MDky", //50%
-                ["60"] = "Qm94OjI1MTAz", //60%
+                ["5"] = "Qm94OjUxMTQ1OQ",//"Qm94OjI1MDM3", //5%
+                ["10"] = "Qm94OjUxMTQ3MA", //10%
+                ["20"] = "Qm94OjUxMTQ4MQ", //20%
+                ["25"] = "Qm94OjUxMTQ5Mg", //25%
+                ["40"] = "Qm94OjUxMTUwMw", //40%
+                ["50"] = "Qm94OjUxMTUxNA", //50%
+                ["60"] = "Qm94OjUxMTUyNQ", //60%
             },
             ["50"] = new Dictionary<string, string> //Level 50
             {
-                ["5"] = "Qm94OjI1MDM4", //5%
-                ["10"] = "Qm94OjI1MDQ5", //10%
-                ["20"] = "Qm94OjI1MDYw", //20%
-                ["25"] = "Qm94OjI1MDcx", //25%
-                ["40"] = "Qm94OjI1MDgy", //40%
-                ["50"] = "Qm94OjI1MDkz", //50%
-                ["60"] = "Qm94OjI1MTA0", //60%
+                ["5"] = "Qm94OjUxMTQ2MA",//"Qm94OjI1MDM4", //5%
+                ["10"] = "Qm94OjUxMTQ3MQ", //10%
+                ["20"] = "Qm94OjUxMTQ4Mg", //20%
+                ["25"] = "Qm94OjUxMTQ5Mw", //25%
+                ["40"] = "Qm94OjUxMTUwNA", //40%
+                ["50"] = "Qm94OjUxMTUxNQ", //50%
+                ["60"] = "Qm94OjUxMTUyNg", //60%
             },
             ["60"] = new Dictionary<string, string> //Level 60
             {
-                ["5"] = "Qm94OjI1MDM5", //5%
-                ["10"] = "Qm94OjI1MDUw", //10%
-                ["20"] = "Qm94OjI1MDYx", //20%
-                ["25"] = "Qm94OjI1MDcy", //25%
-                ["40"] = "Qm94OjI1MDgz", //40%
-                ["50"] = "Qm94OjI1MDk0", //50%
-                ["60"] = "Qm94OjI1MTA1", //60%
+                ["5"] = "Qm94OjUxMTQ2MQ",//"Qm94OjI1MDM5", //5%
+                ["10"] = "Qm94OjUxMTQ3Mg", //10%
+                ["20"] = "Qm94OjUxMTQ4Mw", //20%
+                ["25"] = "Qm94OjUxMTQ5NA", //25%
+                ["40"] = "Qm94OjUxMTUwNQ", //40%
+                ["50"] = "Qm94OjUxMTUxNg", //50%
+                ["60"] = "Qm94OjUxMTUyNw", //60%
             },
             ["70"] = new Dictionary<string, string> //Level 70
             {
-                ["5"] = "Qm94OjI1MDQw", //5%
-                ["10"] = "Qm94OjI1MDUx", //10%
-                ["20"] = "Qm94OjI1MDYy", //20%
-                ["25"] = "Qm94OjI1MDcz", //25%
-                ["40"] = "Qm94OjI1MDg0", //40%
-                ["50"] = "Qm94OjI1MDk1", //50%
-                ["60"] = "Qm94OjI1MTA2", //60%
+                ["5"] = "Qm94OjUxMTQ2Mg",//"Qm94OjI1MDQw", //5%
+                ["10"] = "Qm94OjUxMTQ3Mw", //10%
+                ["20"] = "Qm94OjUxMTQ4NA", //20%
+                ["25"] = "Qm94OjUxMTQ5NQ", //25%
+                ["40"] = "Qm94OjUxMTUwNg", //40%
+                ["50"] = "Qm94OjUxMTUxNw", //50%
+                ["60"] = "Qm94OjUxMTUyOA", //60%
             },
             ["80"] = new Dictionary<string, string> //Level 80
             {
-                ["5"] = "Qm94OjI1MDQx", //5%
-                ["10"] = "Qm94OjI1MDUy", //10%
-                ["20"] = "Qm94OjI1MDYz", //20%
-                ["25"] = "Qm94OjI1MDc0", //25%
-                ["40"] = "Qm94OjI1MDg1", //40%
-                ["50"] = "Qm94OjI1MDk2", //50%
-                ["60"] = "Qm94OjI1MTA3", //60%
+                ["5"] = "Qm94OjUxMTQ2Mw",//"Qm94OjI1MDQx", //5%
+                ["10"] = "Qm94OjUxMTQ3NA", //10%
+                ["20"] = "Qm94OjUxMTQ4NQ", //20%
+                ["25"] = "Qm94OjUxMTQ5Ng", //25%
+                ["40"] = "Qm94OjUxMTUwNw", //40%
+                ["50"] = "Qm94OjUxMTUxOA", //50%
+                ["60"] = "Qm94OjUxMTUyOQ", //60%
             },
             ["90"] = new Dictionary<string, string> //Level 90
             {
-                ["5"] = "Qm94OjI1MDQy", //5%
-                ["10"] = "Qm94OjI1MDUz", //10%
-                ["20"] = "Qm94OjI1MDY0", //20%
-                ["25"] = "Qm94OjI1MDc1", //25%
-                ["40"] = "Qm94OjI1MDg2", //40%
-                ["50"] = "Qm94OjI1MDk3", //50%
-                ["60"] = "Qm94OjI1MTA4", //60%
+                ["5"] = "Qm94OjUxMTQ2NA",//"Qm94OjI1MDQy", //5%
+                ["10"] = "Qm94OjUxMTQ3NQ", //10%
+                ["20"] = "Qm94OjUxMTQ4Ng", //20%
+                ["25"] = "Qm94OjUxMTQ5Nw", //25%
+                ["40"] = "Qm94OjUxMTUwOA", //40%
+                ["50"] = "Qm94OjUxMTUxOQ", //50%
+                ["60"] = "Qm94OjUxMTUzMA", //60%
             },
             ["100"] = new Dictionary<string, string> //Level 100
             {
-                ["5"] = "Qm94OjI1MDQz", //5%
-                ["10"] = "Qm94OjI1MDU0", //10%
-                ["20"] = "Qm94OjI1MDY1", //20%
-                ["25"] = "Qm94OjI1MDc2", //25%
-                ["40"] = "Qm94OjI1MDg3", //40%
-                ["50"] = "Qm94OjI1MDk4", //50%
-                ["60"] = "Qm94OjI1MTA5", //60%
+                ["5"] = "Qm94OjUxMTQ2NQ",//"Qm94OjI1MDQz", //5%
+                ["10"] = "Qm94OjUxMTQ3Ng", //10%
+                ["20"] = "Qm94OjUxMTQ4Nw", //20%
+                ["25"] = "Qm94OjUxMTQ5OA", //25%
+                ["40"] = "Qm94OjUxMTUwOQ", //40%
+                ["50"] = "Qm94OjUxMTUyMA", //50%
+                ["60"] = "Qm94OjUxMTUzMQ", //60%
             },
         };
 
@@ -211,11 +211,23 @@ namespace WebBrowser.Config
         {
             double highestValue = 0;
             CaseOpened bco = new CaseOpened();
+
+            if (openedCasesResults == null) return null;
+
             foreach (CaseOpened co in openedCasesResults)
             {
-                if (co.data.openBox.boxOpenings[0].userItem.consumeValue > highestValue)
+                if (co == null) continue;
+                if (co.data == null) continue;
+                if (co.data.openBox == null) continue;
+                if (co.data.openBox.boxOpenings == null || co.data.openBox.boxOpenings.Count == 0) continue;
+                var firstOpening = co.data.openBox.boxOpenings[0];
+                if (firstOpening == null) continue;
+                if (firstOpening.userItem == null) continue;
+
+                double value = firstOpening.userItem.consumeValue;
+                if (value > highestValue)
                 {
-                    highestValue = co.data.openBox.boxOpenings[0].userItem.consumeValue;
+                    highestValue = value;
                     bco = co;
                 }
             }
