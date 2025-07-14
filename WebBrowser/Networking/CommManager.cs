@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -8,6 +10,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WebBrowser.Config;
+using WebBrowser.WebBrowserJavaScriptInjections.scripts.actions;
+using WebBrowser.WebBrowserJavaScriptInjections.scripts.steam;
 
 namespace WebBrowser.Networking
 {
@@ -18,7 +22,7 @@ namespace WebBrowser.Networking
         private const string ServerAddress = "127.0.0.1";
         private const int ServerPort = 5695;
 
-        private string clientID = "";
+        public string clientID = "";
 
         public bool enabled = false;
 
@@ -71,14 +75,15 @@ namespace WebBrowser.Networking
             while (true)
             {
                 int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                
                 if (bytesRead == 0)
                 {
-                    Console.WriteLine("Server closed connection.");
+                    Form1._instance.printToConsole("Server closed connection.");
                     break;
                 }
 
                 string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine($"Received from server: {message}");
+                Form1._instance.printToConsole($"Received from server: {message}");
 
                 // Parse JSON and handle "msg"
                 try
@@ -88,17 +93,168 @@ namespace WebBrowser.Networking
                     if (json.TryGetProperty("command", out JsonElement cmd))
                     {
                         string cmdstr = cmd.ToString();
+                        Form1 finst = Form1._instance;
+                        Microsoft.Web.WebView2.WinForms.WebView2 wv2Inst = finst.GetWebviewObj();
+                        string sourceString = wv2Inst.Source.ToString();
+
+                        Form1._instance.printToConsole($"Command: {cmdstr}");
+
                         switch (cmdstr)
                         {
                             case "loginSteamDetails":
+                                if(sourceString.Contains("steamcommunity.com") && sourceString.Contains("loginform"))
+                                {
+                                    if(json.TryGetProperty("susername", out JsonElement steamusername) && json.TryGetProperty("spassword", out JsonElement steampassword))
+                                    {
+                                        string script = new inputUsernamePassword().GetJavaScript(new Dictionary<string, string>
+                                        {
+                                            ["username"] = steamusername.GetString(),
+                                            ["password"] = steampassword.GetString(),
+                                        });
+
+                                        finst._signalRequiresSteamCode = new TaskCompletionSource<bool>();
+                                        finst.AddTaskTimeout(15f, finst._signalRequiresSteamCode);
+
+                                        finst.printToConsole($"Executing login script: {script}");
+
+                                        wv2Inst.Invoke(new Action(async () =>
+                                        {
+                                            await wv2Inst.ExecuteScriptAsync(script);
+                                        }));
+
+                                        finst.printToConsole("Finished executing script");
+
+                                        try
+                                        {
+                                            await finst._signalRequiresSteamCode.Task;
+
+                                            finst.printToConsole("Sending Steam guard code request...");
+                                            await SendRequireSteamGuard();
+                                            finst.printToConsole("Sent Steam guard code request");
+                                            continue;
+
+                                        } catch (TaskCanceledException ex)
+                                        {
+                                            finst.printToConsole("Failed to login! Possibly incorrect login details! Reloading...");
+                                            await SendIncorrectSteamLogin();
+                                            //await SendErrorMessage("Failed to login! Possibly incorrect login details!");
+                                            wv2Inst.Invoke(new Action(async () =>
+                                            {
+                                                wv2Inst.Reload();
+                                            }));
+                                            continue;
+                                        }
+
+                                        //finst.printToConsole("Finished user pass");
+
+                                        /*if (finst._signalRequiresQRCode.Task.IsCanceled)
+                                        {
+                                            finst.printToConsole("Failed to login! Possibly incorrect login details! Reloading...");
+                                            //await SendErrorMessage("Failed to login! Possibly incorrect login details!");
+                                            wv2Inst.Reload();
+                                            return;
+                                        } else
+                                        {
+                                            finst.printToConsole("Task success");
+                                        }*/
+                                    }
+                                } else
+                                {
+                                    finst.printToConsole("Not ready to login");
+                                    await SendErrorMessage("Not ready to login");
+                                }
                                 break;
                             case "enterSteamGuard":
+                                if (sourceString.Contains("steamcommunity.com") && sourceString.Contains("loginform"))
+                                {
+                                    if (json.TryGetProperty("scode", out JsonElement scode))
+                                    {
+                                        string script = new inputSteamGuardCode().GetJavaScript(new Dictionary<string, string>
+                                        {
+                                            ["steamcode"] = scode.GetString(),
+                                        });
+
+                                        finst._signalRequiresSteamCode = new TaskCompletionSource<bool>();
+                                        finst.AddTaskTimeout(15f, finst._signalRequiresSteamCode);
+
+                                        wv2Inst.Invoke(new Action(async () =>
+                                        {
+                                            await wv2Inst.ExecuteScriptAsync(script);
+                                        }));
+
+                                        try
+                                        {
+                                            await finst._signalRequiresSteamCode.Task;
+                                        }
+                                        catch (TaskCanceledException ex)
+                                        {
+                                            finst.printToConsole("Failed to login! Reloading...");
+                                            await SendIncorrectSteamGuard();
+                                            //await SendErrorMessage("Failed to login! Possibly incorrect login details!");
+                                            wv2Inst.Invoke(new Action(async () =>
+                                            {
+                                                wv2Inst.Reload();
+                                            }));
+                                            continue;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    await SendErrorMessage("Not ready for steam guard code");
+                                }
                                 break;
                             case "requestQRCode":
+                                // check if ready to login, get and send qr code
+                                if (sourceString.Contains("steamcommunity.com") && sourceString.Contains("loginform"))
+                                {
+                                    finst._signalSteamQRCode = new TaskCompletionSource<string>();
+                                    finst.AddTaskTimeout(15f, finst._signalSteamQRCode);
+                                    
+                                    wv2Inst.Invoke(new Action(async () =>
+                                    {
+                                        await wv2Inst.ExecuteScriptAsync(new getSteamLoginQRCodeFunction().GetJavaScript());
+                                    }));
+
+                                    try
+                                    {
+                                        await finst._signalSteamQRCode.Task;
+
+                                        string qrc = finst._signalSteamQRCode.Task.Result;
+
+                                        if(qrc != null)
+                                        {
+                                            await SendQrCode(qrc);
+                                            finst.printToConsole("Sent QR Code");
+                                        }
+                                    }
+                                    catch (TaskCanceledException ex)
+                                    {
+                                        finst.printToConsole("Failed to get QR code after 15 seconds! Reloading...");
+                                        await SendErrorMessage("Failed to get QR code!");
+                                        //await SendErrorMessage("Failed to login! Possibly incorrect login details!");
+                                        wv2Inst.Invoke(new Action(async () =>
+                                        {
+                                            wv2Inst.Reload();
+                                        }));
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    await SendErrorMessage("Not ready to login");
+                                }
                                 break;
-                            case "clearCookies":
+                            case "clearAllCookies":
+                                Form1._instance.GetWebviewObj().CoreWebView2.CookieManager.DeleteAllCookies();
+                                await SendMessage("Cleared cookies");
                                 break;
                             case "quit":
+                                await SendMessage("Quitting program...");
+                                Form1._instance.quitWebBrowser();
+                                break;
+                            default:
+                                finst.printToConsole("Unknown command");
                                 break;
                         }
                     } 
@@ -109,7 +265,7 @@ namespace WebBrowser.Networking
                     else if (json.TryGetProperty("msg", out var msgProp))
                     {
                         string receivedMsg = msgProp.GetString();
-                        Console.WriteLine($"Message from bot: {receivedMsg}");
+                        Form1._instance.printToConsole($"Message from bot: {receivedMsg}");
 
                         // Respond with a message
                         var response = new { msg = $"Reply from {clientID}: Got your message: '{receivedMsg}'" };
@@ -121,7 +277,7 @@ namespace WebBrowser.Networking
                 }
                 catch (JsonException)
                 {
-                    Console.WriteLine("Received invalid JSON.");
+                    Form1._instance.printToConsole("Received invalid JSON.");
                 }
             }
         }
@@ -212,6 +368,30 @@ namespace WebBrowser.Networking
             {
                 command = "loggedIn",
                 clientId = clientID,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendErrorMessage(string message)
+        {
+            var data = new
+            {
+                command = "errorMessage",
+                clientId = clientID,
+                errorMessage = message,
+            };
+
+            await SendJsonAsync(data);
+        }
+
+        public async Task SendMessage(string message)
+        {
+            var data = new
+            {
+                command = "message",
+                clientId = clientID,
+                message = message,
             };
 
             await SendJsonAsync(data);

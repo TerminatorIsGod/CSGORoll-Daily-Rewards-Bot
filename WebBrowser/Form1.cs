@@ -22,6 +22,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using WebBrowser.Networking;
+using System.Drawing;
 
 
 namespace WebBrowser
@@ -241,6 +242,8 @@ namespace WebBrowser
 
         bool providedCreds = false;
 
+        bool usinProxy = false;
+
         private async void initalizeAsync((string Proxy, string ProxyType, string Username, string Password) proxyConfig)
         {
             printToConsole($"Proxy settings: {proxyConfig.Proxy}, Type: {proxyConfig.ProxyType}, Username: {proxyConfig.Username}");
@@ -254,6 +257,7 @@ namespace WebBrowser
                 {
                     options = new CoreWebView2EnvironmentOptions($"--proxy-server={proxyServer}");
                     printToConsole($"Using proxy server: {proxyServer}");
+                    usinProxy = true;
                 }
                 else
                 {
@@ -385,7 +389,14 @@ namespace WebBrowser
                 File.WriteAllLines(ConfigManager._Instance.GetLogsFileLocation(), newLines);
             }
 
-            File.AppendAllText(ConfigManager._Instance.GetLogsFileLocation(), $"[{currentTime}]: {text} \n");
+            try
+            {
+                File.AppendAllText(ConfigManager._Instance.GetLogsFileLocation(), $"[{currentTime}]: {text} \n");
+            } catch (Exception ex)
+            {
+                Console.WriteLine("File still open");
+            }
+            
         }
 
         public void clearConsoleTextFile()
@@ -419,10 +430,101 @@ namespace WebBrowser
 
         private List<(float time, object tcs)> timedTasks = new List<(float time, object tcs)>();
         
-        private void AddTaskTimeout<T>(float time, TaskCompletionSource<T> task)
+        public void AddTaskTimeout<T>(float time, TaskCompletionSource<T> task)
         {
-            if(!task.Task.IsCompleted)
-                timedTasks.Add((secondsElapsed + time, task));
+            float targettime = secondsElapsed + time;
+
+            if (usinProxy)
+            {
+                targettime *= 2;
+            }
+
+            if (!task.Task.IsCompleted)
+                timedTasks.Add((targettime, task));
+        }
+
+        private void TryCancelTask(object task)
+        {
+            if (task is TaskCompletionSource<object>)
+            {
+                TaskCompletionSource<object> tcs = (TaskCompletionSource<object>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<string>)
+            {
+                TaskCompletionSource<string> tcs = (TaskCompletionSource<string>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<bool>)
+            {
+                TaskCompletionSource<bool> tcs = (TaskCompletionSource<bool>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<User>)
+            {
+                TaskCompletionSource<User> tcs = (TaskCompletionSource<User>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<CaseOpened>)
+            {
+                TaskCompletionSource<CaseOpened> tcs = (TaskCompletionSource<CaseOpened>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<Exchange>)
+            {
+                TaskCompletionSource<Exchange> tcs = (TaskCompletionSource<Exchange>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<PromoCodeSet>)
+            {
+                TaskCompletionSource<bool> tcs = (TaskCompletionSource<bool>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
+            else if (task is TaskCompletionSource<PvpbattleCreated>)
+            {
+                TaskCompletionSource<PvpbattleCreated> tcs = (TaskCompletionSource<PvpbattleCreated>)task;
+
+                if (!tcs.Task.IsCompleted)
+                {
+                    bool success = tcs.TrySetCanceled();
+                    printToConsole($"Cancelled task: {task} - {success}");
+                }
+            }
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -438,18 +540,11 @@ namespace WebBrowser
             {
                 var (time, task) = timedTasks[i];
 
-                if (time >= secondsElapsed)
+                if (secondsElapsed >= time)
                 {
-                    if (task is TaskCompletionSource<object>)
-                    {
-                        TaskCompletionSource<object> tcs = (TaskCompletionSource<object>)task;
+                    TryCancelTask(task);
 
-                        if (!tcs.Task.IsCompleted)
-                        {
-                            tcs.TrySetCanceled();
-                        }
-                    }
-                    
+                        printToConsole($"Removed task: {timedTasks[i]} - {time} / {secondsElapsed}");
                     timedTasks.RemoveAt(i);
                 }
             }
@@ -600,6 +695,8 @@ namespace WebBrowser
         TaskCompletionSource<PromoCodeSet> _signalPromoCode = null;
         TaskCompletionSource<PvpbattleCreated> _signalPvpBattle = null;
         TaskCompletionSource<bool> _signalSteamLoggedIn = null;
+        public TaskCompletionSource<string> _signalSteamQRCode = null;
+        public TaskCompletionSource<bool> _signalRequiresSteamCode = null;
 
         private void messagedReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
@@ -659,6 +756,15 @@ namespace WebBrowser
                     case "SteamSignedIn":
                         printToConsole($"Received: Logged into steam");
                         _signalSteamLoggedIn.TrySetResult(true);
+                        break;
+                    case "RequiresSteamGuardCode":
+                        printToConsole($"Received: Requires steam guard code");
+                        _signalRequiresSteamCode.TrySetResult(true);
+                        break;
+                    case "SteamQRCode":
+                        QRCode qrc = message.payload.Deserialize<QRCode>();
+                        printToConsole($"Received: Steam QR Code: {qrc.qrcode}");
+                        _signalSteamQRCode.TrySetResult(qrc.qrcode);
                         break;
                     default:
                         printToConsole($"Received invalid message! {message}");
@@ -727,25 +833,28 @@ namespace WebBrowser
 
                     await webView21.ExecuteScriptAsync(new pressSignInButton().GetJavaScript());
 
-                    await _signalSteamLoggedIn.Task;
-
-                    if (_signalSteamLoggedIn.Task.IsCanceled)
+                    try
+                    {
+                        await _signalSteamLoggedIn.Task;
+                    }
+                    catch (TaskCanceledException ex)
                     {
                         printToConsole("Failed to login into steam!");
                         ReloadThePage(false);
-                    } else
-                    {
-                        printToConsole("Successfully logged into steam");
+                        return;
                     }
 
+                    printToConsole("Successfully logged into steam");
                     
                 } else if (sourceString.Contains("loginform"))
                 {
                     printToConsole("User not logged into steam!");
                     // Notify discord bot
-                    //CommManager._Instance
 
-                    // Add a source check or something for steam guard
+                    if(CommManager._Instance.enabled)
+                        await CommManager._Instance.SendNotLoggedIn();
+
+                    // Add a source check or something for steam guard after submitting steam login, w  ait x seconds then check
                 }
 
             } else if (sourceString.Contains("csgoroll"))
@@ -757,12 +866,14 @@ namespace WebBrowser
                 AddTaskTimeout(15f, _signalLoadStatus);
                 await webView21.ExecuteScriptAsync(new pageLoaded().GetJavaScript());
 
-                await _signalLoadStatus.Task;
-
-                if (_signalLoadStatus.Task.IsCanceled)
+                try
+                {
+                    await _signalLoadStatus.Task;
+                }
+                catch (TaskCanceledException ex)
                 {
                     printToConsole("Failed to load page after 15 seconds! Reloading...");
-                    webView21.Reload();
+                    ReloadThePage();
                     return;
                 }
 
@@ -777,12 +888,14 @@ namespace WebBrowser
                 AddTaskTimeout(30f, _signalUserData);
                 await webView21.ExecuteScriptAsync(new getUserData().GetJavaScript());
 
-                await _signalUserData.Task;
-
-                if (_signalUserData.Task.IsCanceled)
+                try
+                {
+                    await _signalUserData.Task;
+                }
+                catch (TaskCanceledException ex)
                 {
                     printToConsole("Failed to get user data after 30 seconds! Reloading...");
-                    webView21.Reload();
+                    ReloadThePage();
                     return;
                 }
 
@@ -842,9 +955,14 @@ namespace WebBrowser
 
                     printToConsole($"Executing pvp battle... 3");
 
-                    await _signalPvpBattle.Task;
-
-                    printToConsole($"Executing pvp battle... 4");
+                    try
+                    {
+                        await _signalPvpBattle.Task;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        printToConsole("Failed to execute pvp battle");
+                    }
 
                     if (_signalPvpBattle.Task.IsCompleted)
                     {
@@ -907,7 +1025,14 @@ namespace WebBrowser
 
                     printToConsole(script1);
 
-                    await _signalBoxOpened.Task;
+                    try
+                    {
+                        await _signalBoxOpened.Task;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        printToConsole("Failed to open box");
+                    }
 
                     if (_signalBoxOpened.Task.IsCompleted)
                     {
@@ -989,8 +1114,14 @@ namespace WebBrowser
                 _signalSellInventory = new TaskCompletionSource<Exchange>();
                 AddTaskTimeout(10f, _signalSellInventory);
                 await webView21.ExecuteScriptAsync(new sellInventoryItems().GetJavaScript());
-
-                await _signalSellInventory.Task;
+                try
+                {
+                    await _signalSellInventory.Task;
+                }
+                catch (TaskCanceledException ex)
+                {
+                    printToConsole("Failed to sell items");
+                }
 
                 if (!_signalSellInventory.Task.IsCompleted)
                 {
@@ -1010,7 +1141,14 @@ namespace WebBrowser
                     AddTaskTimeout(10f, _signalPromoCode);
                     await webView21.ExecuteScriptAsync(new setPromoCode().GetJavaScript());
 
-                    await _signalPromoCode.Task;
+                    try
+                    {
+                        await _signalPromoCode.Task;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        printToConsole("Failed to set promocode");
+                    }
 
                     if (!_signalPromoCode.Task.IsCompleted)
                     {
@@ -1026,9 +1164,11 @@ namespace WebBrowser
                         printToConsole("Failed setting promocode!");
                         if (ReloadThePage())
                             return;
+                    } else
+                    {
+                        printToConsole($"Successfully set promocode. {pcs.data}");
                     }
-
-                    printToConsole($"Successfully set promocode. {pcs.data}");
+                        
                 } else
                 {
                     printToConsole($"Skipping setting promocode :(");
@@ -1045,7 +1185,14 @@ namespace WebBrowser
                     AddTaskTimeout(10f, _signalUserData);
                     await webView21.ExecuteScriptAsync(new getUserData().GetJavaScript());
 
-                    await _signalUserData.Task;
+                    try
+                    {
+                        await _signalUserData.Task;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        printToConsole("Failed to get user data");
+                    }
 
                     if (_signalUserData.Task.IsCanceled)
                     {
@@ -1064,11 +1211,104 @@ namespace WebBrowser
                     await SendDiscordWebHook(userData);
                 }
 
+                if (CommManager._Instance.enabled)
+                {
+                    _signalUserData = new TaskCompletionSource<User>();
+                    AddTaskTimeout(10f, _signalUserData);
+                    await webView21.ExecuteScriptAsync(new getUserData().GetJavaScript());
+
+                    try
+                    {
+                        await _signalUserData.Task;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        printToConsole("Failed to get user data");
+                    }
+
+                    if (_signalUserData.Task.IsCanceled)
+                    {
+                        printToConsole("Failed to get user data for webhook!");
+                    }
+                    else if (_signalUserData.Task.Result == null)
+                    {
+                        printToConsole("User is not logged into csgoroll when grabbing for webhook!");
+                    }
+                    else
+                    {
+                        userData = _signalUserData.Task.Result;
+                    }
+
+                    await SendDiscordBotInfo(userData);
+                }
+
                 printToConsole($"Updating task time...");
                 UpdateTaskTime();
                 quitWebBrowser();
             }
 
+        }
+
+        private async System.Threading.Tasks.Task SendDiscordBotInfo(User userdata)
+        {
+            if (CaseIDManager._Instance.openedCasesResults.Count == 0)
+            {
+                var datanocase = new
+                {
+                    command = "collected",
+                    clientId = CommManager._Instance.clientID,
+                    title = "No cases were ready to be claimed!",
+                    description = $"Account Name: `{userdata.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata)}`\n\n",
+                };
+
+                await CommManager._Instance.SendNotification(datanocase);
+                return;
+            }
+
+            CaseOpened bestrolled = CaseIDManager._Instance.GetBestItemRolled();
+            caseOpenedBoxOpening brbo = bestrolled.data.openBox.boxOpenings[0];
+            var brcase = CaseIDManager._Instance.GetLevelPercent(bestrolled.data.openBox.box.id);
+            CaseOpened bestprofit = CaseIDManager._Instance.GetMostValuableItemUnboxed();
+            caseOpenedBoxOpening bpbo = bestprofit.data.openBox.boxOpenings[0];
+            var bpcase = CaseIDManager._Instance.GetLevelPercent(bestprofit.data.openBox.box.id);
+
+            var data = new
+            {
+                command = "collected",
+                clientId = CommManager._Instance.clientID,
+                title = "Your cases have been claimed!",
+                description = $"Account Name: `{userdata.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata)}`\n\n" +
+                        $"__Most valuable item unboxed__\n" +
+                        $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
+                        $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {bpbo.roll.value}\n" +
+                        $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
+                        $"__Best item rolled__\n" +
+                        $"Case: Level {brcase.level} - {brcase.percent}%\n" +
+                        $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {brbo.roll.value}\n" +
+                        $"Value: {brbo.userItem.itemVariant.value}\n\n",
+                /*color = 0xfb2b23,
+                timestamp = DateTime.UtcNow.ToString("o"),
+                footer = new
+                {
+                    text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                },
+                thumbnail = new
+                {
+                    url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                },
+                author = new
+                {
+                    name = "CSGORoll Daily Cases Collector",
+                    url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                    icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                }*/
+            };
+
+            await CommManager._Instance.SendNotification(data);
         }
 
         private async System.Threading.Tasks.Task SendDiscordWebHook(User userdata)
@@ -1153,7 +1393,7 @@ namespace WebBrowser
             return true;
         }
 
-        private void quitWebBrowser()
+        public void quitWebBrowser()
         {
             printToConsole($"Attempting to quit...");
             if (!disableAutoQuit)

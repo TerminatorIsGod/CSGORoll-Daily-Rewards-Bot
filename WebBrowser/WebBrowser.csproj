@@ -286,6 +286,7 @@
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\LastPurchased.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\PromoCodeSet.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\PvpbattleCreated.cs" />
+    <Compile Include="WebBrowserJavaScriptInjections\deserialization\QRCode.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\User.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\WebMessage.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\JavaScriptInjection.cs" />
