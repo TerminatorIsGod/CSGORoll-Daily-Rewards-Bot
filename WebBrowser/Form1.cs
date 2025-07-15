@@ -383,7 +383,14 @@ namespace WebBrowser
         {
             //printToConsole($"Resource requested: {e.Request.Uri}");
 
+            return;
+
             var uri = e.Request.Uri;
+
+            if(!e.Request.Uri.Contains("csgoroll"))
+            {
+                return;
+            }
 
             /*foreach(string allowedOp in allowedOperations)
             {
