@@ -246,6 +246,8 @@ namespace WebBrowser
 
         private async void initalizeAsync((string Proxy, string ProxyType, string Username, string Password) proxyConfig)
         {
+            printToConsole($"CSGORoll Daily Collector Version: {Program.CurrentVersion}");
+
             printToConsole($"Proxy settings: {proxyConfig.Proxy}, Type: {proxyConfig.ProxyType}, Username: {proxyConfig.Username}");
 
             CoreWebView2EnvironmentOptions options = null;
@@ -275,45 +277,55 @@ namespace WebBrowser
             {
                 if (e.IsSuccess)
                 {
-                    printToConsole("Clearing cookies for csgoroll...");
-                    // Clear only cookies for csgoroll.com
-                    /*var cookieManager = webView21.CoreWebView2.CookieManager;
-                    var cookies = await cookieManager.GetCookiesAsync("https://csgoroll.com");
-
-                    foreach (var cookie in cookies)
+                    if(!ConfigManager._Instance.GetConfigFile().enableLocalBotComm)
                     {
-                        cookieManager.DeleteCookie(cookie);
-                        printToConsole("Deleted a cookie...");
-                    }*/
+                        printToConsole("Clearing cookies for csgoroll...");
+                        // Clear only cookies for csgoroll.com
+                        /*var cookieManager = webView21.CoreWebView2.CookieManager;
+                        var cookies = await cookieManager.GetCookiesAsync("https://csgoroll.com");
 
-                    var cookieManager = webView21.CoreWebView2.CookieManager;
-                    var allCookies = await cookieManager.GetCookiesAsync(null); // Get all cookies
-
-                    foreach (var cookie in allCookies)
-                    {
-                        if (cookie.Domain.Contains("csgoroll"))
+                        foreach (var cookie in cookies)
                         {
                             cookieManager.DeleteCookie(cookie);
-                            printToConsole($"Deleted cookie: {cookie.Name} from {cookie.Domain}");
+                            printToConsole("Deleted a cookie...");
+                        }*/
+
+                        var cookieManager = webView21.CoreWebView2.CookieManager;
+                        var allCookies = await cookieManager.GetCookiesAsync(null); // Get all cookies
+
+                        foreach (var cookie in allCookies)
+                        {
+                            if (cookie.Domain.Contains("csgoroll"))
+                            {
+                                cookieManager.DeleteCookie(cookie);
+                                printToConsole($"Deleted cookie: {cookie.Name} from {cookie.Domain}");
+                            }
                         }
+
+                        printToConsole("Finished clearing cookies.");
+
+                        printToConsole("Clearing cache...");
+
+                        // also clear cache
+                        await webView21.CoreWebView2.Profile.ClearBrowsingDataAsync(
+                            CoreWebView2BrowsingDataKinds.DiskCache
+                        );
+
+                        printToConsole("Finished clearing cache.");
                     }
-
-                    printToConsole("Finished clearing cookies.");
-
-                    printToConsole("Clearing cache...");
-
-                    // also clear cache
-                    await webView21.CoreWebView2.Profile.ClearBrowsingDataAsync(
-                        CoreWebView2BrowsingDataKinds.DiskCache
-                    );
-
-                    printToConsole("Finished clearing cache.");
                 }
             };
 
             await webView21.EnsureCoreWebView2Async(environment);
+
+            webView21.CoreWebView2.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
+
             webView21.CoreWebView2.WebMessageReceived += messagedReceived;
-            
+
+            webView21.CoreWebView2.WebResourceRequested += webView_WebResourceRequested;
+
+            // webView21.CoreWebView2.WebResourceResponseReceived += WebView_WebResourceResponseReceived;
+
 
             // Set up proxy authentication if credentials are provided
             if (!string.IsNullOrEmpty(proxyConfig.Username) && !string.IsNullOrEmpty(proxyConfig.Password))
@@ -351,6 +363,153 @@ namespace WebBrowser
             timer.Tick += Timer_Tick;
 
             timer.Start();
+        }
+
+        private void WebView_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
+        {
+            printToConsole($"Resource response received: {e.Request.Uri}");
+        }
+
+        private static List<string> allowedOperations = new List<string>
+        {
+            "promo",
+            "create",
+            "box",
+            "user",
+            "item"
+        };
+
+        private void webView_WebResourceRequested(object sender, CoreWebView2WebResourceRequestedEventArgs e)
+        {
+            //printToConsole($"Resource requested: {e.Request.Uri}");
+
+            var uri = e.Request.Uri;
+
+            /*foreach(string allowedOp in allowedOperations)
+            {
+                if (uri.ToLower().Contains(allowedOp.ToLower()))
+                {
+                    printToConsole($"Resource allowed: {uri}");
+                    return;
+                }
+            }*/
+
+            if (uri.Contains("https://api.csgoroll.com/graphql"))
+            {
+                printToConsole($"Resource allowed: {uri}");
+                return;
+            }
+
+            var resourceContext = e.ResourceContext;
+
+            e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+            return;
+
+            if (resourceContext == CoreWebView2WebResourceContext.Image)
+            {
+                // Block image
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked image: {uri}");
+            }
+            else if (resourceContext == CoreWebView2WebResourceContext.Websocket)
+            {
+                // Block WebSocket – NOTE: May not work as expected (see below)
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked socket: {uri}");
+            }
+            else if (resourceContext == CoreWebView2WebResourceContext.Font)
+            {
+                // Block WebSocket – NOTE: May not work as expected (see below)
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked font: {uri}");
+            }
+            else if (resourceContext == CoreWebView2WebResourceContext.Stylesheet)
+            {
+                // Block WebSocket – NOTE: May not work as expected (see below)
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked stylesheet: {uri}");
+            }
+            else if (resourceContext == CoreWebView2WebResourceContext.Media)
+            {
+                // Block WebSocket – NOTE: May not work as expected (see below)
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked media: {uri}");
+            }
+            else if (resourceContext == CoreWebView2WebResourceContext.All)
+            {
+                // Block WebSocket – NOTE: May not work as expected (see below)
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(null, 403, "Blocked", null);
+                printToConsole($"Blocked all: {uri}");
+            }
+
+            /* foreach (var bop in blockedOperations)
+            {
+                if (uri.Contains(bop))
+                {
+                    e.Response = null;
+                    printToConsole($"Blocked operation: {uri}");
+                    return;
+                }
+            }
+
+            // Block images (JPG, PNG, GIF, WebP)
+            if (uri.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) ||
+                uri.EndsWith(".ico", StringComparison.OrdinalIgnoreCase))
+            {
+                // Respond with an empty image (1-byte)
+                MemoryStream ms = new MemoryStream();
+                StreamWriter sw = new StreamWriter(ms, Encoding.UTF8, 1024, leaveOpen: true);
+                sw.Write("");  // Empty content (transparent 1x1 image)
+                sw.Flush();
+                ms.Position = 0;
+
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(ms, 200, "OK", "");
+                e.Response.Headers.AppendHeader("Content-Type", "image/jpeg");
+            }
+            // Block videos (MP4, WebM, OGG)
+            else if (uri.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                     uri.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                     uri.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
+            {
+                // Respond with an empty video (1-byte)
+                MemoryStream ms = new MemoryStream();
+                StreamWriter sw = new StreamWriter(ms, Encoding.UTF8, 1024, leaveOpen: true);
+                sw.Write("");  // Empty content (dummy video file)
+                sw.Flush();
+                ms.Position = 0;
+
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(ms, 200, "OK", "");
+                e.Response.Headers.AppendHeader("Content-Type", "video/mp4");
+            }
+            // Block WebSocket connections (ws://, wss://)
+            else if (uri.StartsWith("ws://", StringComparison.OrdinalIgnoreCase) ||
+                     uri.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
+            {
+                // Block WebSocket request with empty response
+                MemoryStream ms = new MemoryStream();
+                StreamWriter sw = new StreamWriter(ms, Encoding.UTF8, 1024, leaveOpen: true);
+                sw.Write("");  // Empty response
+                sw.Flush();
+                ms.Position = 0;
+
+                e.Response = webView21.CoreWebView2.Environment.CreateWebResourceResponse(ms, 200, "OK", "");
+                e.Response.Headers.AppendHeader("Content-Type", "text/plain");
+            } */
+        }
+
+        private async void InjectJavaScriptToBlockMedia()
+        {
+            // Inject JavaScript to block all images and videos in the page
+            string script = @"
+                document.querySelectorAll('img').forEach(img => img.src = 'about:blank');
+                document.querySelectorAll('video').forEach(video => video.src = 'about:blank');
+            ";
+
+            await webView21.ExecuteScriptAsync(script);
         }
 
         private void Form1_Load(object sender, EventArgs e)
