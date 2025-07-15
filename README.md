@@ -9,9 +9,8 @@ For support create an [issue](https://github.com/TerminatorIsGod/CSGORoll-Daily-
 
 <br>
 
-### Next Planned Update
-I am currently working on offering hosting the program for people that join the [discord server](https://discord.gg/fy5ARFSYHV). It's currently undecided if this is going to be offered for free and have donations to help pay for the server or if it's going to cost a small fee. People who use this service would be able to fully customize and interact with their instances of the collector using a discord bot.
-
+### Cheap Hosting Available
+Interested in having the collector hosted for you? Join the [discord server](https://discord.gg/fy5ARFSYHV) for more details and to purchase.
 <br><br>
 
 **If you find this program helpful feel free to [leave a vouch](https://www.reddit.com/r/CSGORollServices/comments/1be07ic/csgoroll_daily_rewards_bot/)**
