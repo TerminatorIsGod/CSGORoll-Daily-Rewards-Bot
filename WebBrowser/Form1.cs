@@ -1278,7 +1278,7 @@ namespace WebBrowser
                 await DelayAsyncSec(1f);
                 printToConsole($"Selling items");
                 _signalSellInventory = new TaskCompletionSource<Exchange>();
-                AddTaskTimeout(10f, _signalSellInventory);
+                AddTaskTimeout(20f, _signalSellInventory);
                 await webView21.ExecuteScriptAsync(new sellInventoryItems().GetJavaScript());
                 try
                 {
@@ -1286,7 +1286,9 @@ namespace WebBrowser
                 }
                 catch (TaskCanceledException ex)
                 {
-                    printToConsole("Failed to sell items");
+                    printToConsole($"Failed to sell items - {ex.ToString()}");
+                    if (ReloadThePage())
+                        return;
                 }
 
                 if (!_signalSellInventory.Task.IsCompleted)
