@@ -8,6 +8,6 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.deserialization
 {
     class QRCode
     {
-        public string qrcode { get; set; }
+        public string qrcode64 { get; set; }
     }
 }

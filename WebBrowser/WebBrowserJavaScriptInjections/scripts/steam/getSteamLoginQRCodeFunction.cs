@@ -10,51 +10,53 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.scripts.steam
     {
         public override string GetJavaScript(Dictionary<string, string> args = null)
         {
-            return @"function getQRCodeText() {
-  const container = document.querySelector('[style*=""grid-template-columns: repeat(41""]');
-  if (!container) return 'QR container not found.';
+            return @"(async () => {
+                  const imgElement = Array.from(document.querySelectorAll('img'))
+                    .find(img => img.src.startsWith('blob:'));
 
-  const cells = Array.from(container.querySelectorAll('div'));
-  const gridSize = 41;
+                  if (!imgElement) {
+                    console.error('No <img> element with a blob: URL found.');
+                    return;
+                  }
 
-  // Create a 2D array of booleans: true = black, false = white
-  const boolGrid = [];
-  for (let i = 0; i < cells.length; i++) {
-    const style = window.getComputedStyle(cells[i]);
-    const bg = style.backgroundColor;
-    const isBlack = bg === 'rgb(33, 35, 40)';
-    const row = Math.floor(i / gridSize);
-    const col = i % gridSize;
-    if (!boolGrid[row]) boolGrid[row] = [];
-    boolGrid[row][col] = isBlack;
-  }
+                  console.log('Found image:', imgElement);
 
-  let output = '';
-  for (let row = 0; row < gridSize; row += 2) {
-    for (let col = 0; col < gridSize; col++) {
-      const top = boolGrid[row]?.[col] ? 1 : 0;
-      const bottom = boolGrid[row + 1]?.[col] ? 1 : 0;
+                  const scale = 4;
+                  const canvasScale = 5;
 
-      let char;
-      if (top && bottom) char = '█';
-      else if (top && !bottom) char = '▀';
-      else if (!top && bottom) char = '▄';
-      else char = ' ';
-      output += char;
-    }
-    output += '\n';
-  }
+                  const originalWidth = imgElement.naturalWidth;
+                  const originalHeight = imgElement.naturalHeight;
 
-  console.log(output);
+                  const scaledWidth = originalWidth * scale;
+                  const scaledHeight = originalHeight * scale;
 
-      window.chrome.webview.postMessage({
-        type: ""SteamQRCode"",
-        payload: { qrcode: output }
-      });
-  return output;
-}
+                  const canvasWidth = originalWidth * canvasScale;
+                  const canvasHeight = originalHeight * canvasScale;
 
-getQRCodeText();
+                  const canvas = document.createElement('canvas');
+                  canvas.width = canvasWidth;
+                  canvas.height = canvasHeight;
+
+                  const ctx = canvas.getContext('2d');
+                
+                  ctx.fillStyle = 'white'; 
+                  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                  ctx.imageSmoothingEnabled = false;
+
+                  const x = (canvasWidth - scaledWidth) / 2;
+                  const y = (canvasHeight - scaledHeight) / 2;
+
+                  ctx.drawImage(imgElement, 0, 0, originalWidth, originalHeight, x, y, scaledWidth, scaledHeight);
+
+                  const base64String = canvas.toDataURL('image/png'); // or 'image/jpeg'
+
+                  console.log('Base64 Image:', base64String);
+                 window.chrome.webview.postMessage({
+                  type: ""SteamQRCode"",
+                  payload: { qrcode64: base64String}
+                });
+             })();
 ";
         }
     }

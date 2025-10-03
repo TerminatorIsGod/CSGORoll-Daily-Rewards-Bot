@@ -91,11 +91,11 @@ namespace WebBrowser.Config
         public string infoStringPvpStrategyInfo4 { get; set; } = "'HIGHEST_LAST_BET_PAYOUT' (Terminal Regular)  'LOWEST_LAST_BET_PAYOUT' (Terminal Crazy)";
         public string pvpStrategy { get; set; } = "HIGHEST_SUM";
 
-        public string infoStringPvpNumOfPlayers { get; set; } = "Options: 2, 3, 4, 6";
+        public string infoStringPvpNumOfPlayers { get; set; } = "Options: 2 to 6";
         public int pvpNumOfPlayers { get; set; } = 4;
 
-        public string infoStringPvpNumOfTeams1 { get; set; } = "Options: 1, 2, 3, 4";
-        public string infoStringPvpNumOfTeams2 { get; set; } = "if 1 number of players can be either 2, 3, 4";
+        public string infoStringPvpNumOfTeams1 { get; set; } = "Options: 1 to 4";
+        public string infoStringPvpNumOfTeams2 { get; set; } = "if 1 number of players can be 2 to 6 - 1 is used for shared mode";
         public string infoStringPvpNumOfTeams3 { get; set; } = "if 2 number of players can be either 2, 4, 6";
         public string infoStringPvpNumOfTeams4 { get; set; } = "if 3 number of players can be either 3, 6";
         public string infoStringPvpNumOfTeams5 { get; set; } = "if 4 number of players can only be 4";

@@ -929,8 +929,8 @@ namespace WebBrowser
                         break;
                     case "SteamQRCode":
                         QRCode qrc = message.payload.Deserialize<QRCode>();
-                        printToConsole($"Received: Steam QR Code: {qrc.qrcode}");
-                        _signalSteamQRCode.TrySetResult(qrc.qrcode);
+                        printToConsole($"Received: Steam QR Code: {qrc.qrcode64}");
+                        _signalSteamQRCode.TrySetResult(qrc.qrcode64);
                         break;
                     default:
                         printToConsole($"Received invalid message! {message}");
@@ -944,6 +944,9 @@ namespace WebBrowser
         }
 
         private int pvpbattleAttemps = 0;
+
+        private bool succPvpBattleCreated = false;
+        private double playerStartingBal = 0;
 
         private async void webView21_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
@@ -1076,6 +1079,11 @@ namespace WebBrowser
                 CaseIDManager._Instance.GotPlayerLevel(userData.level);
                 ConfigManager._Instance.SetScheduleTime(userData.dailyFreeTimeSlot);
 
+                if (playerStartingBal == 0)
+                {
+                    playerStartingBal = CaseIDManager._Instance.GetPlayerMainWalletBalance(userData);
+                }
+
                 await DelayAsyncSec(1f);
 
                 List<string> cidpvp = CaseIDManager._Instance.caseIdsToPvpBattle;
@@ -1149,6 +1157,7 @@ namespace WebBrowser
                             } else
                             {
                                 printToConsole($"Successfully created pvp battle");
+                                succPvpBattleCreated = true;
                             }
 
                             printToConsole($"Executing pvp battle... 6");
@@ -1194,71 +1203,73 @@ namespace WebBrowser
                     try
                     {
                         await _signalBoxOpened.Task;
+
+                        if (_signalBoxOpened.Task.IsCompleted)
+                        {
+                            //success
+                            if (_signalBoxOpened.Task.Result != null)
+                            {
+                                //opened box
+                                CaseOpened co = _signalBoxOpened.Task.Result;
+
+                                if (co != null && co.data != null)
+                                {
+                                    if (co.data.openBox != null)
+                                    {
+                                        printToConsole($"Successfully opened box: {bid} - {co.data.openBox}");
+                                        CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                        CaseIDManager._Instance.openedCasesResults.Add(co);
+                                        await DelayAsyncSec(5f);
+                                        //if (ReloadThePage(false)) //try refresh data
+                                        //    return;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        if (co.errors != null && co.errors.Count > 0)
+                                        {
+                                            //Ran into an error
+                                            printToConsole($"CSGORoll Error: {co.errors[0].message}");
+
+                                            if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
+                                            {
+                                                printToConsole($"CSGORoll Error: Box in use");
+                                            }
+                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
+                                            {
+                                                printToConsole($"CSGORoll Error: Balance on slot has changed");
+                                            }
+                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
+                                            {
+                                                printToConsole($"CSGORoll Error: GEO Block");
+                                            }
+                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
+                                            {
+                                                printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
+                                                CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                                await DelayAsyncSec(5f);
+                                                //if (ReloadThePage(false)) //try refresh data
+                                                //    return;
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                printToConsole($"CSGORoll Error: Unhandled Error!");
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
                     }
                     catch (TaskCanceledException ex)
                     {
                         printToConsole("Failed to open box");
                     }
-
-                    if (_signalBoxOpened.Task.IsCompleted)
-                    {
-                        //success
-                        if(_signalBoxOpened.Task.Result != null)
-                        {
-                            //opened box
-                            CaseOpened co = _signalBoxOpened.Task.Result;
-
-                            if (co != null && co.data != null)
-                            {
-                                if (co.data.openBox != null)
-                                {
-                                    printToConsole($"Successfully opened box: {bid} - {co.data.openBox}");
-                                    CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                    CaseIDManager._Instance.openedCasesResults.Add(co);
-                                    await DelayAsyncSec(5f);
-                                    //if (ReloadThePage(false)) //try refresh data
-                                    //    return;
-                                    continue;
-                                } else
-                                {
-                                    if(co.errors != null && co.errors.Count > 0)
-                                    {
-                                        //Ran into an error
-                                        printToConsole($"CSGORoll Error: {co.errors[0].message}");
-
-                                        if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
-                                        {
-                                            printToConsole($"CSGORoll Error: Box in use");
-                                        }
-                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
-                                        {
-                                            printToConsole($"CSGORoll Error: Balance on slot has changed");
-                                        }
-                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
-                                        {
-                                            printToConsole($"CSGORoll Error: GEO Block");
-                                        }
-                                        else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
-                                        {
-                                            printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
-                                            CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                            await DelayAsyncSec(5f);
-                                            //if (ReloadThePage(false)) //try refresh data
-                                            //    return;
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            printToConsole($"CSGORoll Error: Unhandled Error!");
-                                        }
-
-                                    }
-                                }
-                            }
-                            
-                        }
-                        
-                    }
+                    
 
                     //failed
                     printToConsole($"Failed to open box: {bid}");
@@ -1419,18 +1430,28 @@ namespace WebBrowser
 
         private async System.Threading.Tasks.Task SendDiscordBotInfo(User userdata)
         {
-            if (CaseIDManager._Instance.openedCasesResults.Count == 0)
+            User UD = userdata;
+
+            double playerEndingBal = CaseIDManager._Instance.GetPlayerMainWalletBalance(UD);
+
+            if (CaseIDManager._Instance.openedCasesResults.Count == 0 && !succPvpBattleCreated)
             {
                 var datanocase = new
                 {
                     command = "collected",
                     clientId = CommManager._Instance.clientID,
                     title = "No cases were ready to be claimed!",
-                    description = $"Account Name: `{userdata.name}`\n" +
-                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata)}`\n\n",
+                    description = $"Account Name: `{UD.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n\n",
                 };
-
-                await CommManager._Instance.SendNotification(datanocase);
+                try
+                {
+                    await CommManager._Instance.SendNotification(datanocase);
+                } catch (Exception ex)
+                {
+                    printToConsole(ex.ToString());
+                }
+                
                 return;
             }
 
@@ -1441,13 +1462,13 @@ namespace WebBrowser
             caseOpenedBoxOpening bpbo = bestprofit.data.openBox.boxOpenings[0];
             var bpcase = CaseIDManager._Instance.GetLevelPercent(bestprofit.data.openBox.box.id);
 
-            var data = new
+            /*var data = new
             {
                 command = "collected",
                 clientId = CommManager._Instance.clientID,
                 title = "Your cases have been claimed!",
-                description = $"Account Name: `{userdata.name}`\n" +
-                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata)}`\n\n" +
+                description = $"Account Name: `{UD.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n\n" +
                         $"__Most valuable item unboxed__\n" +
                         $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
                         $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
@@ -1473,10 +1494,93 @@ namespace WebBrowser
                     name = "CSGORoll Daily Cases Collector",
                     url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
                     icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
-                }*/
-            };
+                }
+            }; */
 
-            await CommManager._Instance.SendNotification(data);
+            double totalbalunboxed = CaseIDManager._Instance.GetTotalValueUnboxed();
+            
+            if(CaseIDManager._Instance.openedCasesResults.Count == 0 && succPvpBattleCreated) //pvp only
+            {
+                if(playerStartingBal == playerEndingBal) //lost
+                {
+                    var data = new
+                    {
+                        command = "collected",
+                        clientId = CommManager._Instance.clientID,
+                        title = "You lost your case battle :(",
+                        description = 
+                            $"Account Name: `{UD.name}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n",
+                    };
+
+                    await CommManager._Instance.SendNotification(data);
+                } else //won
+                {
+                    var data = new
+                    {
+                        command = "collected",
+                        clientId = CommManager._Instance.clientID,
+                        title = "You won your case battle!",
+                        description = 
+                            $"Account Name: `{UD.name}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n" +
+                            $"Amount won from case battle: `{playerEndingBal - playerStartingBal - totalbalunboxed}`\n",
+                    };
+
+                    await CommManager._Instance.SendNotification(data);
+                }
+            } 
+            else if (CaseIDManager._Instance.openedCasesResults.Count != 0 && succPvpBattleCreated) //unboxed and pvp
+            {
+                var data = new
+                {
+                    command = "collected",
+                    clientId = CommManager._Instance.clientID,
+                    title = "Your cases have been case battled & claimed!",
+                    description = 
+                        $"Account Name: `{UD.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n" +
+                        $"Amount won from case battle: `{playerEndingBal-playerStartingBal-totalbalunboxed}`\n" +
+                        $"Total value unboxed: `{totalbalunboxed}`\n\n" +
+                        $"__Most valuable item unboxed__\n" +
+                        $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
+                        $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {bpbo.roll.value}\n" +
+                        $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
+                        $"__Best item rolled__\n" +
+                        $"Case: Level {brcase.level} - {brcase.percent}%\n" +
+                        $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {brbo.roll.value}\n" +
+                        $"Value: {brbo.userItem.itemVariant.value}\n\n",
+                };
+
+                await CommManager._Instance.SendNotification(data);
+            } 
+            else //case only
+            {
+                var data = new
+                {
+                    command = "collected",
+                    clientId = CommManager._Instance.clientID,
+                    title = "Your cases have been claimed!",
+                    description = $"Account Name: `{UD.name}`\n" +
+                        $"Total value unboxed: `{totalbalunboxed}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n\n" +
+                        $"__Most valuable item unboxed__\n" +
+                        $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
+                        $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {bpbo.roll.value}\n" +
+                        $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
+                        $"__Best item rolled__\n" +
+                        $"Case: Level {brcase.level} - {brcase.percent}%\n" +
+                        $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                        $"Roll: {brbo.roll.value}\n" +
+                        $"Value: {brbo.userItem.itemVariant.value}\n\n",
+                };
+
+                await CommManager._Instance.SendNotification(data);
+            }
+
         }
 
         private async System.Threading.Tasks.Task SendDiscordWebHook(User userdata)
@@ -1490,12 +1594,223 @@ namespace WebBrowser
             caseOpenedBoxOpening bpbo = bestprofit.data.openBox.boxOpenings[0];
             var bpcase = CaseIDManager._Instance.GetLevelPercent(bestprofit.data.openBox.box.id);
 
-            var payload = new
+            User UD = userdata;
+            double playerEndingBal = CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata);
+            double totalbalunboxed = CaseIDManager._Instance.GetTotalValueUnboxed();
+
+            string jsonPayload = "";
+
+            if (CaseIDManager._Instance.openedCasesResults.Count == 0 && !succPvpBattleCreated)
             {
-                username = "CSGORoll Daily Collector",
-                avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
-                embeds = new[]
+                var payload = new
                 {
+                    username = "CSGORoll Daily Collector",
+                    avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                    embeds = new[]
+                    {
+                    new
+                    {
+                        title = "No cases were ready to be claimed!",
+                        description = $"Account Name: `{UD.name}`\n" +
+                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n\n",
+                        color = 0xfb2b23,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        footer = new
+                        {
+                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                        },
+                        thumbnail = new
+                        {
+                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        },
+                        author = new
+                        {
+                            name = "CSGORoll Daily Cases Collector",
+                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        }
+                    }
+                }
+                };
+
+                jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+            }
+            else if (CaseIDManager._Instance.openedCasesResults.Count == 0 && succPvpBattleCreated) //pvp only
+            {
+                if (playerStartingBal == playerEndingBal) //lost
+                {
+                    var payload = new
+                    {
+                        username = "CSGORoll Daily Collector",
+                        avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                        embeds = new[]
+                    {
+                    new
+                    {
+                        title = "You lost your case battle :(",
+                        description =
+                            $"Account Name: `{UD.name}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n",
+                        color = 0xfb2b23,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        footer = new
+                        {
+                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                        },
+                        thumbnail = new
+                        {
+                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        },
+                        author = new
+                        {
+                            name = "CSGORoll Daily Cases Collector",
+                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        }
+                    }
+                }
+                    };
+
+                    jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+                } else
+                {
+                    var payload = new
+                    {
+                        username = "CSGORoll Daily Collector",
+                        avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                        embeds = new[]
+                    {
+                    new
+                    {
+                        title = "You won your case battle!",
+                        description =
+                            $"Account Name: `{UD.name}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n" +
+                            $"Amount won from case battle: `{playerEndingBal - playerStartingBal - totalbalunboxed}`\n",
+                        color = 0xfb2b23,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        footer = new
+                        {
+                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                        },
+                        thumbnail = new
+                        {
+                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        },
+                        author = new
+                        {
+                            name = "CSGORoll Daily Cases Collector",
+                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        }
+                    }
+                }
+                    };
+
+                    jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+                } 
+            }
+            else if (CaseIDManager._Instance.openedCasesResults.Count != 0 && succPvpBattleCreated) //unboxed and pvp
+            {
+                var payload = new
+                {
+                    username = "CSGORoll Daily Collector",
+                    avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                    embeds = new[]
+                    {
+                    new
+                    {
+                        title = "Your cases have been case battled & claimed!",
+                        description =
+                            $"Account Name: `{UD.name}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n" +
+                            $"Amount won from case battle: `{playerEndingBal-playerStartingBal-totalbalunboxed}`\n" +
+                            $"Total value unboxed: `{totalbalunboxed}`\n\n" +
+                            $"__Most valuable item unboxed__\n" +
+                            $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
+                            $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                            $"Roll: {bpbo.roll.value}\n" +
+                            $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
+                            $"__Best item rolled__\n" +
+                            $"Case: Level {brcase.level} - {brcase.percent}%\n" +
+                            $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                            $"Roll: {brbo.roll.value}\n" +
+                            $"Value: {brbo.userItem.itemVariant.value}\n\n",
+                        color = 0xfb2b23,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        footer = new
+                        {
+                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                        },
+                        thumbnail = new
+                        {
+                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        },
+                        author = new
+                        {
+                            name = "CSGORoll Daily Cases Collector",
+                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        }
+                    }
+                }
+                };
+
+                jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+            }
+            else //case only
+            {
+                var payload = new
+                {
+                    username = "CSGORoll Daily Collector",
+                    avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                    embeds = new[]
+                    {
+                    new
+                    {
+                        title = "Your cases have been claimed!",
+                        description = $"Account Name: `{UD.name}`\n" +
+                            $"Total value unboxed: `{totalbalunboxed}`\n" +
+                            $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(UD)}`\n\n" +
+                            $"__Most valuable item unboxed__\n" +
+                            $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
+                            $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                            $"Roll: {bpbo.roll.value}\n" +
+                            $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
+                            $"__Best item rolled__\n" +
+                            $"Case: Level {brcase.level} - {brcase.percent}%\n" +
+                            $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
+                            $"Roll: {brbo.roll.value}\n" +
+                            $"Value: {brbo.userItem.itemVariant.value}\n\n",
+                        color = 0xfb2b23,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        footer = new
+                        {
+                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
+                        },
+                        thumbnail = new
+                        {
+                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        },
+                        author = new
+                        {
+                            name = "CSGORoll Daily Cases Collector",
+                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
+                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
+                        }
+                    }
+                }
+                };
+
+                jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+            }
+
+                /*var payload = new
+                {
+                    username = "CSGORoll Daily Collector",
+                    avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                    embeds = new[]
+                    {
                     new
                     {
                         title = "Your cases have been claimed!",
@@ -1529,9 +1844,9 @@ namespace WebBrowser
                         }
                     }
                 }
-            };
+                };
 
-            string jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+            jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }); */
 
             var client = new HttpClient();
             var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");

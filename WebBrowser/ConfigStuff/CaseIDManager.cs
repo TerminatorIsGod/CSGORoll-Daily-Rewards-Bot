@@ -207,6 +207,27 @@ namespace WebBrowser.Config
             LoadCasesToOpen();
         }
 
+        public double GetTotalValueUnboxed()
+        {
+            if (openedCasesResults == null) return 0;
+
+            double total = 0;
+
+            foreach(CaseOpened co in openedCasesResults)
+            {
+                if (co == null) continue;
+                if (co.data == null) continue;
+                if (co.data.openBox == null) continue;
+                if (co.data.openBox.boxOpenings == null || co.data.openBox.boxOpenings.Count == 0) continue;
+                var firstOpening = co.data.openBox.boxOpenings[0];
+                if (firstOpening == null) continue;
+                if (firstOpening.userItem == null) continue;
+
+                total += firstOpening.userItem.consumeValue;
+            }
+            return total;
+        }
+
         public CaseOpened GetMostValuableItemUnboxed()
         {
             double highestValue = 0;
