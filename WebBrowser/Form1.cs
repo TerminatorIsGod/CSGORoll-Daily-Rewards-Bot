@@ -673,7 +673,7 @@ namespace WebBrowser
             }
             else if (task is TaskCompletionSource<PromoCodeSet>)
             {
-                TaskCompletionSource<bool> tcs = (TaskCompletionSource<bool>)task;
+                TaskCompletionSource<PromoCodeSet> tcs = (TaskCompletionSource<PromoCodeSet>)task;
 
                 if (!tcs.Task.IsCompleted)
                 {
@@ -1386,8 +1386,14 @@ namespace WebBrowser
                         userData = _signalUserData.Task.Result;
                     }
 
-                    printToConsole("Sending discord webhook message...");
-                    await SendDiscordWebHook(userData);
+                    if(userData == null)
+                    {
+                        ReloadThePage();
+                    } else
+                    {
+                        printToConsole("Sending discord webhook message...");
+                        await SendDiscordWebHook(userData);
+                    }
                 }
 
                 if (CommManager._Instance.enabled)
@@ -1430,6 +1436,12 @@ namespace WebBrowser
 
         private async System.Threading.Tasks.Task SendDiscordBotInfo(User userdata)
         {
+            if(userdata == null)
+            {
+                printToConsole("userdata is null! Failed to send discord info");
+                return;
+            }
+
             User UD = userdata;
 
             double playerEndingBal = CaseIDManager._Instance.GetPlayerMainWalletBalance(UD);
