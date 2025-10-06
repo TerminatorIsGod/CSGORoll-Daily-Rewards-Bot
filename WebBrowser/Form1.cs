@@ -1356,7 +1356,7 @@ namespace WebBrowser
 
                 //send webhook message
 
-                if (ConfigManager._Instance.GetConfigFile().enableDiscordWebhook && CaseIDManager._Instance.openedCasesResults.Count > 0)
+                if (ConfigManager._Instance.GetConfigFile().enableDiscordWebhook)
                 {
                     //try to get the user's new balance
                     //Get user data
