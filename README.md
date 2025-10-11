@@ -210,6 +210,8 @@ Clutch Regular:   ```HIGHEST_BET_PAYOUT``` <br>
 Clutch Crazy:     ```LOWEST_BET_PAYOUT``` <br>
 Termianl Regular: ```HIGHEST_LAST_BET_PAYOUT``` <br>
 Terminal Crazy:   ```LOWEST_LAST_BET_PAYOUT``` <br>
+Jackpot Regular: ```RANDOM_TICKET``` <br>
+Jackpot Crazy:   ```INVERSE_RANDOM_TICKET``` <br>
 
 <br>
 
