@@ -1590,8 +1590,11 @@ namespace WebBrowser
 
             string jsonPayload = "";
 
+            printToConsole("Webhook - creating payload");
+
             if (CaseIDManager._Instance.openedCasesResults.Count == 0 && !succPvpBattleCreated)
             {
+                printToConsole("Webhook - no cases");
                 var payload = new
                 {
                     username = "CSGORoll Daily Collector",
@@ -1627,8 +1630,10 @@ namespace WebBrowser
             }
             else if (CaseIDManager._Instance.openedCasesResults.Count == 0 && succPvpBattleCreated) //pvp only
             {
+                printToConsole("Webhook - pvp only");
                 if (playerStartingBal == playerEndingBal) //lost
                 {
+                    printToConsole("Webhook - win");
                     var payload = new
                     {
                         username = "CSGORoll Daily Collector",
@@ -1664,6 +1669,7 @@ namespace WebBrowser
                     jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
                 } else
                 {
+                    printToConsole("Webhook - lost");
                     var payload = new
                     {
                         username = "CSGORoll Daily Collector",
@@ -1701,24 +1707,28 @@ namespace WebBrowser
                 } 
             }
 
-            if(CaseIDManager._Instance.openedCasesResults.Count != 0)
+            try
             {
-                CaseOpened bestrolled = CaseIDManager._Instance.GetBestItemRolled();
-                caseOpenedBoxOpening brbo = bestrolled.data.openBox.boxOpenings[0];
-                var brcase = CaseIDManager._Instance.GetLevelPercent(bestrolled.data.openBox.box.id);
-                CaseOpened bestprofit = CaseIDManager._Instance.GetMostValuableItemUnboxed();
-                caseOpenedBoxOpening bpbo = bestprofit.data.openBox.boxOpenings[0];
-                var bpcase = CaseIDManager._Instance.GetLevelPercent(bestprofit.data.openBox.box.id);
-                double totalbalunboxed = CaseIDManager._Instance.GetTotalValueUnboxed();
-
-                if (CaseIDManager._Instance.openedCasesResults.Count != 0 && succPvpBattleCreated) //unboxed and pvp
+                if (CaseIDManager._Instance.openedCasesResults.Count != 0)
                 {
-                    var payload = new
+                    printToConsole("Webhook - cases count != 0");
+                    CaseOpened bestrolled = CaseIDManager._Instance.GetBestItemRolled();
+                    caseOpenedBoxOpening brbo = bestrolled.data.openBox.boxOpenings[0];
+                    var brcase = CaseIDManager._Instance.GetLevelPercent(bestrolled.data.openBox.box.id);
+                    CaseOpened bestprofit = CaseIDManager._Instance.GetMostValuableItemUnboxed();
+                    caseOpenedBoxOpening bpbo = bestprofit.data.openBox.boxOpenings[0];
+                    var bpcase = CaseIDManager._Instance.GetLevelPercent(bestprofit.data.openBox.box.id);
+                    double totalbalunboxed = CaseIDManager._Instance.GetTotalValueUnboxed();
+
+                    if (CaseIDManager._Instance.openedCasesResults.Count != 0 && succPvpBattleCreated) //unboxed and pvp
                     {
-                        username = "CSGORoll Daily Collector",
-                        avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
-                        embeds = new[]
+                        printToConsole("Webhook - succPvp");
+                        var payload = new
                         {
+                            username = "CSGORoll Daily Collector",
+                            avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                            embeds = new[]
+                            {
                     new
                     {
                         title = "Your cases have been case battled & claimed!",
@@ -1755,18 +1765,19 @@ namespace WebBrowser
                         }
                     }
                 }
-                    };
+                        };
 
-                    jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
-                }
-                else //case only
-                {
-                    var payload = new
+                        jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+                    }
+                    else //case only
                     {
-                        username = "CSGORoll Daily Collector",
-                        avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
-                        embeds = new[]
+                        printToConsole("Webhook - cases only");
+                        var payload = new
                         {
+                            username = "CSGORoll Daily Collector",
+                            avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
+                            embeds = new[]
+                            {
                     new
                     {
                         title = "Your cases have been claimed!",
@@ -1801,61 +1812,28 @@ namespace WebBrowser
                         }
                     }
                 }
-                    };
+                        };
 
-                    jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
-                }
-            }
-
-            
-
-                /*var payload = new
-                {
-                    username = "CSGORoll Daily Collector",
-                    avatar_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp",
-                    embeds = new[]
-                    {
-                    new
-                    {
-                        title = "Your cases have been claimed!",
-                        description = $"Account Name: `{userdata.name}`\n" +
-                        $"Balance: `{CaseIDManager._Instance.GetPlayerMainWalletBalance(userdata)}`\n\n" +
-                        $"__Most valuable item unboxed__\n" +
-                        $"Case: Level {bpcase.level} - {bpcase.percent}%\n" +
-                        $"{bpbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
-                        $"Roll: {bpbo.roll.value}\n" +
-                        $"Value: {bpbo.userItem.itemVariant.value}\n\n" +
-                        $"__Best item rolled__\n" +
-                        $"Case: Level {brcase.level} - {brcase.percent}%\n" +
-                        $"{brbo.userItem.itemVariant.brand} - {brbo.userItem.itemVariant.name}\n" +
-                        $"Roll: {brbo.roll.value}\n" +
-                        $"Value: {brbo.userItem.itemVariant.value}\n\n",
-                        color = 0xfb2b23,
-                        timestamp = DateTime.UtcNow.ToString("o"),
-                        footer = new
-                        {
-                            text = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot"
-                        },
-                        thumbnail = new
-                        {
-                            url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
-                        },
-                        author = new
-                        {
-                            name = "CSGORoll Daily Cases Collector",
-                            url = "https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot",
-                            icon_url = "https://cdn.discordapp.com/avatars/1276929592866640014/03b5f7449deae1bd9863657ecb73a4ae.webp"
-                        }
+                        jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
                     }
                 }
-                };
+            } catch (Exception ex)
+            {
+                printToConsole("Failed to send discord webhook: " + ex.Message);
+            }
 
-            jsonPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true }); */
+            printToConsole("Webhook - sending...");
 
-            var client = new HttpClient();
-            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(webhookURL, content);
-            printToConsole(response.IsSuccessStatusCode ? "Successfully sent webhook message" : "Failed to send discord webhook");
+            try
+            {
+                var client = new HttpClient();
+                var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(webhookURL, content);
+                printToConsole(response.IsSuccessStatusCode ? "Successfully sent webhook message" : "Failed to send discord webhook");
+            } catch (Exception ex)
+            {
+                printToConsole("Failed to send discord webhook: " + ex.Message);
+            }
         }
 
         private CancellationTokenSource _cancellationTokenSource;

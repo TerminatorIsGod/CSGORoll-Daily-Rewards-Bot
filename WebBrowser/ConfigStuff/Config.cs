@@ -89,6 +89,7 @@ namespace WebBrowser.Config
         public string infoStringPvpStrategyInfo2 { get; set; } = "'HIGHEST_SUM' (Regular)  'LOWEST_SUM' (Crazy)";
         public string infoStringPvpStrategyInfo3 { get; set; } = "'HIGHEST_BET_PAYOUT' (Clutch Regular)  'LOWEST_BET_PAYOUT' (Clutch Crazy)";
         public string infoStringPvpStrategyInfo4 { get; set; } = "'HIGHEST_LAST_BET_PAYOUT' (Terminal Regular)  'LOWEST_LAST_BET_PAYOUT' (Terminal Crazy)";
+        public string infoStringPvpStrategyInfo5 { get; set; } = "'RANDOM_TICKET' (Jackpot Regular)  'INVERSE_RANDOM_TICKET' (Jackpot Crazy)";
         public string pvpStrategy { get; set; } = "HIGHEST_SUM";
 
         public string infoStringPvpNumOfPlayers { get; set; } = "Options: 2 to 6";
