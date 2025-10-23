@@ -59,7 +59,7 @@ namespace WebBrowser.Config
             config = JsonSerializer.Deserialize<Config>(json, options);
 
             //Verify case battle stuff are valid
-            if (config.pvpStrategy != "HIGHEST_SUM" && config.pvpStrategy != "LOWEST_SUM" && config.pvpStrategy != "HIGHEST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_BET_PAYOUT" && config.pvpStrategy != "HIGHEST_LAST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_LAST_BET_PAYOUT")
+            if (config.pvpStrategy != "HIGHEST_SUM" && config.pvpStrategy != "LOWEST_SUM" && config.pvpStrategy != "INVERSE_RANDOM_TICKET" && config.pvpStrategy != "RANDOM_TICKET" && config.pvpStrategy != "HIGHEST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_BET_PAYOUT" && config.pvpStrategy != "HIGHEST_LAST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_LAST_BET_PAYOUT")
             {
                 config.pvpStrategy = "HIGHEST_SUM";
             }
