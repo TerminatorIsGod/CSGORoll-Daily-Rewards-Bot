@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using WebBrowser.WebBrowserJavaScriptInjections.deserialization;
@@ -138,44 +140,27 @@ namespace WebBrowser.Config
 
         private int playerlvl = -1;
 
+        private bool addedCasesToLists = false;
+
         public CaseIDManager()
         {
             _Instance = this;
         }
 
-        public void LoadCasesToOpen()
+        public void LoadCasesToOpen(string cid)
         {
-            foreach (CaseConfig cc in ConfigManager._Instance.GetConfigFile().casesToOpen)
+            if (addedCasesToLists)
+                return;
+
+            addedCasesToLists = true;
+
+            if (ConfigManager._Instance.GetConfigFile().pvpBattleCase)
             {
-                string boxid = allBoxIds[cc.level][cc.risk];
-
-                if (playerlvl != -1)
-                {
-                    if (Convert.ToInt32(cc.level) > playerlvl)
-                    {
-                        Form1._instance.printToConsole($"Case level {cc.level} is too high level for your account!");
-                        continue;
-                    }
-                }
-
-                caseIdsToOpen.Add(boxid);
+                caseIdsToPvpBattle.Add(cid);
+                return;
             }
 
-            foreach (CaseConfig cc in ConfigManager._Instance.GetConfigFile().casesToPvpbattle)
-            {
-                string boxid = allBoxIds[cc.level][cc.risk];
-
-                if (playerlvl != -1)
-                {
-                    if (Convert.ToInt32(cc.level) > playerlvl)
-                    {
-                        Form1._instance.printToConsole($"Case level {cc.level} is too high level for your account!");
-                        continue;
-                    }
-                }
-
-                caseIdsToPvpBattle.Add(boxid);
-            }
+            caseIdsToOpen.Add(cid);
         }
 
         public (string levelKey, string percentKey)? GetBoxKeysFromValue(string targetValue)
@@ -204,7 +189,7 @@ namespace WebBrowser.Config
             }
             playerlvl = level;
 
-            LoadCasesToOpen();
+            //LoadCasesToOpen();
         }
 
         public double GetTotalValueUnboxed()
@@ -277,6 +262,32 @@ namespace WebBrowser.Config
             foreach (UserWallet wallet in userdata.wallets)
             {
                 if (wallet.name == "MAIN")
+                {
+                    return wallet.amount;
+                }
+            }
+
+            return 0.0;
+        }
+
+        public int GetPlayerCaseTier(User userdata)
+        {
+            foreach (UserProgresses userProgress in userdata.userProgresses)
+            {
+                if (userProgress.type == "TIER")
+                {
+                    return userProgress.userProgressTier.order;
+                }
+            }
+
+            return 0;
+        }
+
+        public double GetPlayerBoxKeyWalletBalance(User userdata)
+        {
+            foreach (UserWallet wallet in userdata.wallets)
+            {
+                if (wallet.name == "BOX_KEY")
                 {
                     return wallet.amount;
                 }

@@ -29,6 +29,26 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.scripts.actions
             amount
             currency
           }
+            userProgresses {
+                id
+                type
+                xp
+                userProgressTier {
+                id
+                name
+                order
+                xpRequired
+                __typename
+                }
+                nextTier {
+                id
+                name
+                order
+                xpRequired
+                __typename
+                }
+                __typename
+            }
           __typename
         }
       }

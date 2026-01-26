@@ -277,7 +277,7 @@ namespace WebBrowser
             {
                 if (e.IsSuccess)
                 {
-                    if(!ConfigManager._Instance.GetConfigFile().enableLocalBotComm)
+                    if(ConfigManager._Instance.GetConfigFile().clearCookiesOnLaunch)
                     {
                         printToConsole("Clearing cookies for csgoroll...");
                         // Clear only cookies for csgoroll.com
@@ -547,7 +547,7 @@ namespace WebBrowser
             DateTime currentTime = DateTime.Now;
 
             string[] allLogs = File.ReadAllLines(ConfigManager._Instance.GetLogsFileLocation());
-            if (allLogs.Length >= 1000)
+            if (allLogs.Length >= 10000)
             {
                 int half = allLogs.Length / 2;
                 string[] newLines = allLogs.Skip(half).ToArray();
@@ -690,6 +690,9 @@ namespace WebBrowser
                     bool success = tcs.TrySetCanceled();
                     printToConsole($"Cancelled task: {task} - {success}");
                 }
+            } else
+            {
+                printToConsole($"Invalid task type trying to cancel! {task.GetType()}");
             }
         }
 
@@ -863,6 +866,9 @@ namespace WebBrowser
         TaskCompletionSource<bool> _signalSteamLoggedIn = null;
         public TaskCompletionSource<string> _signalSteamQRCode = null;
         public TaskCompletionSource<bool> _signalRequiresSteamCode = null;
+        TaskCompletionSource<string> _signalUserCaseId = null;
+        TaskCompletionSource<bool> _signalLockpickedCase = null;
+        public bool lockpickSuccess = false;
 
         private void messagedReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
@@ -932,6 +938,20 @@ namespace WebBrowser
                         printToConsole($"Received: Steam QR Code: {qrc.qrcode64}");
                         _signalSteamQRCode.TrySetResult(qrc.qrcode64);
                         break;
+                    case "caseIDToOpen":
+                        JsonWebMessage JWM = message.payload.Deserialize<JsonWebMessage>();
+                        printToConsole($"Received: caseIDToOpen: {message.payload}");
+                        _signalUserCaseId.TrySetResult(JWM.message);
+                        break;
+                    case "lockpickedCaseSuccess":
+                        LockpickedCase LC = message.payload.Deserialize<LockpickedCase>();
+                        lockpickSuccess = LC.success;
+                        _signalLockpickedCase.TrySetResult(true);
+                        break;
+                    case "lockpickedCaseError":
+                        printToConsole($"Lockpick case error: {message.payload}");
+                        _signalLockpickedCase.TrySetResult(false);
+                        break;
                     default:
                         printToConsole($"Received invalid message! {message}");
                         break;
@@ -947,6 +967,7 @@ namespace WebBrowser
 
         private bool succPvpBattleCreated = false;
         private double playerStartingBal = 0;
+        private double playerKeyBalance = 0;
 
         private async void webView21_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
@@ -1057,6 +1078,8 @@ namespace WebBrowser
                 AddTaskTimeout(30f, _signalUserData);
                 await webView21.ExecuteScriptAsync(new getUserData().GetJavaScript());
 
+                //printToConsole(new getUserData().GetJavaScript());
+
                 try
                 {
                     await _signalUserData.Task;
@@ -1076,7 +1099,7 @@ namespace WebBrowser
                 }
 
                 User userData = _signalUserData.Task.Result;
-                CaseIDManager._Instance.GotPlayerLevel(userData.level);
+                //CaseIDManager._Instance.GotPlayerLevel(userData.level);
                 ConfigManager._Instance.SetScheduleTime(userData.dailyFreeTimeSlot);
 
                 if (playerStartingBal == 0)
@@ -1084,206 +1107,348 @@ namespace WebBrowser
                     playerStartingBal = CaseIDManager._Instance.GetPlayerMainWalletBalance(userData);
                 }
 
+                playerKeyBalance = CaseIDManager._Instance.GetPlayerBoxKeyWalletBalance(userData);
+                int playerTier = CaseIDManager._Instance.GetPlayerCaseTier(userData); 
+
+                await DelayAsyncSec(1f);
+                printToConsole($"Getting user desired case");
+
+                //Get user data
+                _signalUserCaseId = new TaskCompletionSource<string>();
+                AddTaskTimeout(30f, _signalUserCaseId);
+                string scriptci = new getUserCaseId().GetJavaScript(new Dictionary<string, string>
+                {
+                    ["risk"] = ConfigManager._Instance.GetRisk().ToString(),
+                    ["value"] = ConfigManager._Instance.GetCaseValue(),
+                    ["tier"] = playerTier.ToString()
+                });
+                printToConsole($"Executing script: {scriptci}");
+                await webView21.ExecuteScriptAsync(scriptci);
+
+                printToConsole($"Getting user desired case");
+
+                try
+                {
+                    await _signalUserCaseId.Task;
+                }
+                catch (TaskCanceledException ex)
+                {
+                    printToConsole("Failed to get case id after 30 seconds! Reloading...");
+                    ReloadThePage();
+                    return;
+                }
+
+                if (_signalUserCaseId.Task.Result == null)
+                {
+                    printToConsole("Error getting case id! Reloading...");
+                    ReloadThePage(); 
+                    return;
+                }
+
+                string caseid = _signalUserCaseId.Task.Result;
+                CaseIDManager._Instance.LoadCasesToOpen(caseid);
+
                 await DelayAsyncSec(1f);
 
-                List<string> cidpvp = CaseIDManager._Instance.caseIdsToPvpBattle;
-
-                //create pvp battle
-                if (cidpvp.Count > 0)
+                //no keys left, we should lockpick
+                if(playerKeyBalance == 0)
                 {
-                    printToConsole($"Creating pvp battle...");
+                    printToConsole($"Lockpicking cases");
 
-                    var boxes = new List<object>();
-
-                    for(int i = 0; i < cidpvp.Count; i++)
+                    //open cases
+                    List<string> localCasesToOpen = new List<string>(CaseIDManager._Instance.caseIdsToOpen);
+                    foreach (string bid in localCasesToOpen)
                     {
-                        boxes.Add(new { boxId = cidpvp[i], roundNumber = i });
-                    }
+                        printToConsole($"Opening box: {bid}");
+                        _signalBoxOpened = new TaskCompletionSource<CaseOpened>();
+                        AddTaskTimeout(5f, _signalBoxOpened);
+                        printToConsole($"Sending script");
+                        string script1 = new lockpickCase().GetJavaScript(new Dictionary<string, string> { ["boxId"] = bid });
 
-                    string boxesJson = JsonSerializer.Serialize(boxes);
+                        await webView21.ExecuteScriptAsync(script1);
 
-                    printToConsole($"Executing pvp battle...");
+                        printToConsole($"Script sent, waiting for reply...");
 
-                    pvpbattleAttemps++;
+                        printToConsole(script1);
 
-                    printToConsole($"Executing pvp battle... 1");
-
-                    _signalPvpBattle = new TaskCompletionSource<PvpbattleCreated>();
-                    AddTaskTimeout(7f, _signalPvpBattle);
-
-                    printToConsole($"Executing pvp battle... 2");
-
-                    string script = new createPvPGame().GetJavaScript(new Dictionary<string, string>
-                    {
-                        ["boxes"] = boxesJson,
-                        ["strategy"] = ConfigManager._Instance.GetConfigFile().pvpStrategy,
-                        ["mode"] = ConfigManager._Instance.GetConfigFile().pvpMode,
-                        ["playercount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayers.ToString(),
-                        ["teamcount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfTeams.ToString(),
-                        ["teamplayerscount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayersOnTeam.ToString()
-                    });
-
-                    printToConsole(script);
-
-                    await webView21.ExecuteScriptAsync(script);
-
-                    printToConsole($"Executing pvp battle... 3");
-
-                    try
-                    {
-                        await _signalPvpBattle.Task;
-                    }
-                    catch (TaskCanceledException ex)
-                    {
-                        printToConsole("Failed to execute pvp battle");
-                    }
-
-                    if (_signalPvpBattle.Task.IsCompleted)
-                    {
-                        printToConsole($"Executing pvp battle... 5");
-                        if (_signalPvpBattle.Task.Result != null)
+                        try
                         {
-                            PvpbattleCreated pbc = _signalPvpBattle.Task.Result;
-                            if (pbc.createPvpGame == null)
+                            await _signalBoxOpened.Task;
+
+                            if (_signalBoxOpened.Task.IsCompleted)
                             {
-                                printToConsole($"Failed creating pvp battle, one of the cases was already unboxed!");
+                                //success
+                                if (_signalBoxOpened.Task.Result != null)
+                                {
+                                    //opened box
+                                    CaseOpened co = _signalBoxOpened.Task.Result;
+
+                                    if (co != null && co.data != null)
+                                    {
+                                        if (co.data.openBox != null)
+                                        {
+                                            printToConsole($"Successfully lockpicked box: {bid} - {co.data.openBox}");
+                                            CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                            CaseIDManager._Instance.openedCasesResults.Add(co);
+                                            await DelayAsyncSec(5f);
+                                            //if (ReloadThePage(false)) //try refresh data
+                                            //    return;
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            if (co.errors != null && co.errors.Count > 0)
+                                            {
+                                                //Ran into an error
+                                                printToConsole($"CSGORoll Error: {co.errors[0].message}");
+
+                                                if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: Box in use");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: Balance on slot has changed");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: GEO Block");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
+                                                {
+                                                    printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
+                                                    CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                                    await DelayAsyncSec(5f);
+                                                    //if (ReloadThePage(false)) //try refresh data
+                                                    //    return;
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    printToConsole($"CSGORoll Error: Unhandled Error!");
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+                                }
+
+                            }
+                        }
+                        catch (TaskCanceledException ex)
+                        {
+                            printToConsole("Failed to open box");
+                        }
+
+
+                        //failed
+                        printToConsole($"Failed to open box: {bid}");
+                        await DelayAsyncSec(5f);
+                    }
+                } else
+                {
+                    List<string> cidpvp = CaseIDManager._Instance.caseIdsToPvpBattle;
+
+                    //create pvp battle
+                    if (cidpvp.Count > 0)
+                    {
+                        printToConsole($"Creating pvp battle...");
+
+                        var boxes = new List<object>();
+
+                        for (int i = 0; i < cidpvp.Count; i++)
+                        {
+                            boxes.Add(new { boxId = cidpvp[i], roundNumber = i });
+                        }
+
+                        string boxesJson = JsonSerializer.Serialize(boxes);
+
+                        printToConsole($"Executing pvp battle...");
+
+                        pvpbattleAttemps++;
+
+                        printToConsole($"Executing pvp battle... 1");
+
+                        _signalPvpBattle = new TaskCompletionSource<PvpbattleCreated>();
+                        AddTaskTimeout(7f, _signalPvpBattle);
+
+                        printToConsole($"Executing pvp battle... 2");
+
+                        string script = new createPvPGame().GetJavaScript(new Dictionary<string, string>
+                        {
+                            ["boxes"] = boxesJson,
+                            ["strategy"] = ConfigManager._Instance.GetConfigFile().pvpStrategy,
+                            ["mode"] = ConfigManager._Instance.GetConfigFile().pvpMode,
+                            ["playercount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayers.ToString(),
+                            ["teamcount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfTeams.ToString(),
+                            ["teamplayerscount"] = ConfigManager._Instance.GetConfigFile().pvpNumOfPlayersOnTeam.ToString()
+                        });
+
+                        printToConsole(script);
+
+                        await webView21.ExecuteScriptAsync(script);
+
+                        printToConsole($"Executing pvp battle... 3");
+
+                        try
+                        {
+                            await _signalPvpBattle.Task;
+                        }
+                        catch (TaskCanceledException ex)
+                        {
+                            printToConsole("Failed to execute pvp battle");
+                        }
+
+                        if (_signalPvpBattle.Task.IsCompleted)
+                        {
+                            printToConsole($"Executing pvp battle... 5");
+                            if (_signalPvpBattle.Task.Result != null)
+                            {
+                                PvpbattleCreated pbc = _signalPvpBattle.Task.Result;
+                                if (pbc.createPvpGame == null)
+                                {
+                                    printToConsole($"Failed creating pvp battle, one of the cases was already unboxed!");
+                                    if (pvpbattleAttemps <= 3)
+                                    {
+                                        printToConsole($"Retrying...");
+                                        if (ReloadThePage())
+                                            return;
+                                    }
+                                    printToConsole($"Failed creating pvp battle too many times");
+                                }
+                                else
+                                {
+                                    printToConsole($"Successfully created pvp battle");
+                                    succPvpBattleCreated = true;
+                                }
+
+                                printToConsole($"Executing pvp battle... 6");
+
+                                CaseIDManager._Instance.caseIdsToPvpBattle.Clear();
+                            }
+                            else
+                            {
+                                await DelayAsyncSec(10f);
+                                printToConsole($"Failed creating pvp battle...");
+                                //failed to create battle
                                 if (pvpbattleAttemps <= 3)
                                 {
-                                    printToConsole($"Retrying...");
                                     if (ReloadThePage())
                                         return;
                                 }
                                 printToConsole($"Failed creating pvp battle too many times");
-                            } else
-                            {
-                                printToConsole($"Successfully created pvp battle");
-                                succPvpBattleCreated = true;
                             }
-
-                            printToConsole($"Executing pvp battle... 6");
-
-                            CaseIDManager._Instance.caseIdsToPvpBattle.Clear();
-                        } else
-                        {
-                            await DelayAsyncSec(10f);
-                            printToConsole($"Failed creating pvp battle...");
-                            //failed to create battle
-                            if (pvpbattleAttemps <= 3)
-                            {
-                                if (ReloadThePage())
-                                    return;
-                            }
-                            printToConsole($"Failed creating pvp battle too many times");
                         }
+
+                        await DelayAsyncSec(5f);
                     }
 
-                    await DelayAsyncSec(5f);
-                }
-                
 
-                printToConsole($"Opening cases");
+                    printToConsole($"Opening cases");
 
-                //open cases
-                List<string> localCasesToOpen = new List<string>(CaseIDManager._Instance.caseIdsToOpen);
+                    //open cases
+                    List<string> localCasesToOpen = new List<string>(CaseIDManager._Instance.caseIdsToOpen);
 
-                foreach(string bid in localCasesToOpen)
-                {
-                    printToConsole($"Opening box: {bid}");
-                    _signalBoxOpened = new TaskCompletionSource<CaseOpened>();
-                    AddTaskTimeout(5f, _signalBoxOpened);
-                    printToConsole($"Sending script");
-                    string script1 = new openCaseFull().GetJavaScript(new Dictionary<string, string> { ["boxId"] = bid });
-
-                    await webView21.ExecuteScriptAsync(script1);
-
-                    printToConsole($"Script sent, waiting for reply...");
-
-                    printToConsole(script1);
-
-                    try
+                    foreach (string bid in localCasesToOpen)
                     {
-                        await _signalBoxOpened.Task;
+                        printToConsole($"Opening box: {bid}");
+                        _signalBoxOpened = new TaskCompletionSource<CaseOpened>();
+                        AddTaskTimeout(5f, _signalBoxOpened);
+                        printToConsole($"Sending script");
+                        string script1 = new openCaseFull().GetJavaScript(new Dictionary<string, string> { ["boxId"] = bid });
 
-                        if (_signalBoxOpened.Task.IsCompleted)
+                        await webView21.ExecuteScriptAsync(script1);
+
+                        printToConsole($"Script sent, waiting for reply...");
+
+                        printToConsole(script1);
+
+                        try
                         {
-                            //success
-                            if (_signalBoxOpened.Task.Result != null)
+                            await _signalBoxOpened.Task;
+
+                            if (_signalBoxOpened.Task.IsCompleted)
                             {
-                                //opened box
-                                CaseOpened co = _signalBoxOpened.Task.Result;
-
-                                if (co != null && co.data != null)
+                                //success
+                                if (_signalBoxOpened.Task.Result != null)
                                 {
-                                    if (co.data.openBox != null)
+                                    //opened box
+                                    CaseOpened co = _signalBoxOpened.Task.Result;
+
+                                    if (co != null && co.data != null)
                                     {
-                                        printToConsole($"Successfully opened box: {bid} - {co.data.openBox}");
-                                        CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                        CaseIDManager._Instance.openedCasesResults.Add(co);
-                                        await DelayAsyncSec(5f);
-                                        //if (ReloadThePage(false)) //try refresh data
-                                        //    return;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        if (co.errors != null && co.errors.Count > 0)
+                                        if (co.data.openBox != null)
                                         {
-                                            //Ran into an error
-                                            printToConsole($"CSGORoll Error: {co.errors[0].message}");
+                                            printToConsole($"Successfully opened box: {bid} - {co.data.openBox}");
+                                            CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                            CaseIDManager._Instance.openedCasesResults.Add(co);
+                                            await DelayAsyncSec(5f);
+                                            //if (ReloadThePage(false)) //try refresh data
+                                            //    return;
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            if (co.errors != null && co.errors.Count > 0)
+                                            {
+                                                //Ran into an error
+                                                printToConsole($"CSGORoll Error: {co.errors[0].message}");
 
-                                            if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
-                                            {
-                                                printToConsole($"CSGORoll Error: Box in use");
-                                            }
-                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
-                                            {
-                                                printToConsole($"CSGORoll Error: Balance on slot has changed");
-                                            }
-                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
-                                            {
-                                                printToConsole($"CSGORoll Error: GEO Block");
-                                            }
-                                            else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
-                                            {
-                                                printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
-                                                CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
-                                                await DelayAsyncSec(5f);
-                                                //if (ReloadThePage(false)) //try refresh data
-                                                //    return;
-                                                continue;
-                                            }
-                                            else
-                                            {
-                                                printToConsole($"CSGORoll Error: Unhandled Error!");
-                                            }
+                                                if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Box in use"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: Box in use");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("Balance on slot has changed"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: Balance on slot has changed");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("GEO_BLOCK"))
+                                                {
+                                                    printToConsole($"CSGORoll Error: GEO Block");
+                                                }
+                                                else if (co.errors != null && co.errors.Count > 0 && co.errors[0].message.Contains("cannot open more"))
+                                                {
+                                                    printToConsole($"Case was already opened: {bid} - {co.data.openBox}");
+                                                    CaseIDManager._Instance.caseIdsToOpen.Remove(bid); //remove from list of cases we need to open
+                                                    await DelayAsyncSec(5f);
+                                                    //if (ReloadThePage(false)) //try refresh data
+                                                    //    return;
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    printToConsole($"CSGORoll Error: Unhandled Error!");
+                                                }
 
+                                            }
                                         }
                                     }
+
                                 }
 
                             }
-
                         }
-                    }
-                    catch (TaskCanceledException ex)
-                    {
-                        printToConsole("Failed to open box");
-                    }
-                    
+                        catch (TaskCanceledException ex)
+                        {
+                            printToConsole("Failed to open box");
+                        }
 
-                    //failed
-                    printToConsole($"Failed to open box: {bid}");
+
+                        //failed
+                        printToConsole($"Failed to open box: {bid}");
+                        await DelayAsyncSec(5f);
+                    }
+
+                    printToConsole($"Inital case opening finished...");
                     await DelayAsyncSec(5f);
-                }
 
-                printToConsole($"Inital case opening finished...");
-                await DelayAsyncSec(5f);
-
-                if (CaseIDManager._Instance.caseIdsToOpen.Count > 0)
-                {
-                    //Some cases failed to open, refresh the page and try again
-                    if (ReloadThePage())
-                        return;
+                    if (CaseIDManager._Instance.caseIdsToOpen.Count > 0)
+                    {
+                        //Some cases failed to open, refresh the page and try again
+                        if (ReloadThePage())
+                            return;
+                    }
                 }
 
                 await DelayAsyncSec(1f);

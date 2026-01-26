@@ -15,6 +15,7 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.deserialization
         public string steamId { get; set; }
         public string dailyFreeTimeSlot { get; set; }
         public List<UserWallet> wallets { get; set; }
+        public List<UserProgresses> userProgresses { get; set; }
     }
 
     class UserWallet
@@ -23,5 +24,22 @@ namespace WebBrowser.WebBrowserJavaScriptInjections.deserialization
         public string name { get; set; }
         public double amount { get; set; }
         public string currency { get; set; }
+    }
+
+    class UserProgresses
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public int xp { get; set; }
+        public UserProgressTier userProgressTier { get; set; }
+        public UserProgressTier nextTier { get; set; }
+    }
+
+    class UserProgressTier
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public int order { get; set; }
+        public int xpRequired { get; set; }
     }
 }

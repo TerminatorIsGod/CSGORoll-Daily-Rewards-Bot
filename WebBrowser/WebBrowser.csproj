@@ -283,7 +283,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\CaseOpened.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\Exchange.cs" />
+    <Compile Include="WebBrowserJavaScriptInjections\deserialization\JsonWebMessage.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\LastPurchased.cs" />
+    <Compile Include="WebBrowserJavaScriptInjections\deserialization\LockpickedCase.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\PromoCodeSet.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\PvpbattleCreated.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\deserialization\QRCode.cs" />
@@ -294,11 +296,13 @@
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\checkLoggedIn.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\createPvPGame.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\getShortestTime.cs" />
+    <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\getUserCaseId.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\getUserData.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\openCase.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\openCaseFull.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\pageLoaded.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\sellInventoryItems.cs" />
+    <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\lockpickCase.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\actions\setPromoCode.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\functions\applyPromoCodeFunction.cs" />
     <Compile Include="WebBrowserJavaScriptInjections\scripts\functions\createPvPGameFunction.cs" />

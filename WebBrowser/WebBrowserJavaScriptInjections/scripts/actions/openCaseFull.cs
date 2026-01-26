@@ -182,7 +182,12 @@ async function openCase(boxId) {{
   console.log(""openBox done"");
 }}
 
-openCase(boxId);
+function startopencase(){{
+  openCase(boxId);
+}}
+
+startopencase();
+
 ";
         }
     }

@@ -48,6 +48,26 @@ namespace WebBrowser.Config
             return ConfigFile;
         }
 
+        public int GetRisk()
+        {
+            return config.risk;
+        }
+
+        public string GetCaseValue()
+        {
+            switch (config.caseValue)
+            {
+                case 1:
+                    return "low";
+                case 2:
+                    return "medium";
+                case 3:
+                    return "high";
+                default:
+                    return "high";
+            }
+        }
+
         public void LoadConfigFile()
         {
             if (!File.Exists(ConfigFile))
@@ -57,6 +77,16 @@ namespace WebBrowser.Config
 
             string json = File.ReadAllText(ConfigFile);
             config = JsonSerializer.Deserialize<Config>(json, options);
+
+            if (config.risk != 60 || config.risk != 50 || config.risk != 40 || config.risk != 25 || config.risk != 20 || config.risk != 10 || config.risk != 5)
+            {
+                config.risk = 60;
+            }
+
+            if(config.caseValue != 1 || config.caseValue != 2 || config.caseValue != 3)
+            {
+                config.caseValue = 3;
+            }
 
             //Verify case battle stuff are valid
             if (config.pvpStrategy != "HIGHEST_SUM" && config.pvpStrategy != "LOWEST_SUM" && config.pvpStrategy != "INVERSE_RANDOM_TICKET" && config.pvpStrategy != "RANDOM_TICKET" && config.pvpStrategy != "HIGHEST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_BET_PAYOUT" && config.pvpStrategy != "HIGHEST_LAST_BET_PAYOUT" && config.pvpStrategy != "LOWEST_LAST_BET_PAYOUT")
