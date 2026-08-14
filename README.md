@@ -1,4 +1,5 @@
-# CSGORoll Daily Rewards Bot / Collector [No longer being developed for the foreseeable future]
+# CSGORoll Daily Rewards Bot / Collector
+# No longer being developed for the foreseeable future
 
 Developed By: TerminatorIsGod  
 Official Github URL: [https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot](https://github.com/TerminatorIsGod/CSGORoll-Daily-Rewards-Bot)  
